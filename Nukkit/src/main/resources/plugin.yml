@@ -1,0 +1,17 @@
+name: RankManager
+author: ifteam
+version: 1.0.0
+main: rankManager.RankManager
+api: [1.0.0]
+
+permissions:
+ rankmanager.rankshop.create:
+  default: OP
+ rankmanager.rankshop.delete:
+  default: OP
+ rankmanager.rankshop.use:
+  default: true
+ rankmanager.rank.manage:
+  default: true
+ rankmanager.rank.control:
+  default: OP
