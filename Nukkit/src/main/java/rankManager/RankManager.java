@@ -62,7 +62,7 @@ public class RankManager extends PluginBase implements Listener {
 			this.bossbarManager = (BossbarManager) getServer().getPluginManager().getPlugin("BossbarManager");
 		}
 		
-		this.registerCommand(get("rank"), "rankmanager.rank.manage", get("rank-description"), get("rank"));
+		this.registerCommand(getMessage("rank"), "rankmanager.rank.manage", getMessage("rank-description"), getMessage("rank"));
 	}
 	
 	@Override
@@ -111,12 +111,25 @@ public class RankManager extends PluginBase implements Listener {
 		config.save();
 	}
 	
+	@Deprecated
+	public String getMessage(String var) {
+		return (String) this.messages.get("kor-" + var);
+	}
+	
 	public RankProvider getRankProvider() {
 		return this.rankProvider;
 	}
 	
 	public RankLoader getRankLoader() {
 		return this.rankLoader;
+	}
+	
+	public EventListener getEventListener() {
+		return eventListener;
+	}
+	
+	public ListenerLoader getListenerLoader() {
+		return listenerLoader;
 	}
 	
 	public void korea(String name, String a) {
@@ -131,16 +144,7 @@ public class RankManager extends PluginBase implements Listener {
 		return  data.get(name.toLowerCase()).toString();
 	}
 	
-	public EventListener getEventListener() {
-		return eventListener;
-	}
-	
-	public ListenerLoader getListenerLoader() {
-		return listenerLoader;
-	}
-	
 	public void registerCommand(String name, String permission, String description, String usage) {
-		getLogger().error(name);
 		CommandMap commandMap = this.getServer().getCommandMap();
 		PluginCommand<Plugin> command = new PluginCommand<>(name,this);
 		command.setDescription(description);
@@ -148,19 +152,20 @@ public class RankManager extends PluginBase implements Listener {
 		command.setUsage(usage);
 		commandMap.register(name, command);
 	}
-	public String get(String var) {
-		return (String) this.messages.get("kor-" + var);
-	}
+	
 	private void initMessage() {
 		this.saveResource("messages.yml");
 		messages =(Map<String, Object>) (new Config(this.getDataFolder().getPath()  + "/messages.yml" , Config.YAML )).getAll();
 	}
+	
 	public void message(Player player, String text) {
-		player.sendMessage(TextFormat.DARK_AQUA + get("default-prefix") + " " + text);
+		player.sendMessage(TextFormat.DARK_AQUA + getMessage("default-prefix") + " " + text);
 	}
+	
 	public void alert(Player player, String text) {
-		player.sendMessage(TextFormat.RED + get("default-prefix") + " " + text);
+		player.sendMessage(TextFormat.RED + getMessage("default-prefix") + " " + text);
 	}
+	
 	public static RankManager getInstance() {
 		return instance;
 	}

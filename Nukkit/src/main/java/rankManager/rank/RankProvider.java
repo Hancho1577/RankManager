@@ -1,6 +1,5 @@
 package rankManager.rank;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class RankProvider {
 		
 		db = (LinkedHashMap<String, Object>) (new Config(this.plugin.getDataFolder().getPath() + "/pluginDB.yml", Config.YAML, new ConfigSection(){
 			{
-			set("defaultPrefix", plugin.get("default-player-prefix"));
+			set("defaultPrefix", plugin.getMessage("default-player-prefix"));
 			set("defaultPrefixFormat" , "§f%prefix%");
 			set("chatFormat", "%special%§6[ %prefix%§f/ %name%§6]§f:§r %message%");
 			set("nameTagFormat" , "%prefix%%name%");
@@ -41,17 +40,16 @@ public class RankProvider {
 	public void cleanSellers() {
 		LinkedHashMap<String, LinkedHashMap<String, Object>> Sellers = (LinkedHashMap<String, LinkedHashMap<String, Object>>) db.get("prefixsells");
 
-		int now = (int) (new Date().getTime()/1000);
+		int now = (int) (System.currentTimeMillis() / 1000);
 		Iterator<String> it = Sellers.keySet().iterator();
 		String key;
 		LinkedHashMap<String, Object> value;
 		while(it.hasNext()) {
 			key = it.next();
 			value = Sellers.get(key);
-			//if(now - (int) value.get("date") > 86400) {
-			if(now - (int) value.get("date") > 180) {
+			if(now - (int) value.get("date") > 86400) {
 				if(this.plugin.getServer().getPlayer(key) != null) {
-					this.plugin.getServer().broadcastMessage("§l§g"+key+"님§f의 칭호 판매가 §c종료§f되었습니다.");
+					this.plugin.getServer().broadcastMessage("§l§g" + key + "님§f의 칭호 판매가 §c종료§f되었습니다.");
 					it.remove();
 				}
 			}
@@ -123,7 +121,7 @@ public class RankProvider {
 		data.put("cost", cost);
 		data.put("price", price);
 		data.put("prefix", prefix);
-		data.put("date", (int) (new Date().getTime()/1000) + 86400);
+		data.put("date", (int) (System.currentTimeMillis()  /1000) + 86400);
 		Sellers.put(player, data);
 		db.put("prefixsells", Sellers);
 	}

@@ -31,21 +31,13 @@ public class RankLoader {
 	}
 	public boolean unloadRank(String userName) {
 		if(userName == null) {
-			/*this.temp = users;
-			temp.forEach((key, value) -> {
-					((RankData)value).save(true);
-					users.remove(key);
-			});*/
-			//server.getLogger().info("size : " + users.size());
 				Iterator<String> it = users.keySet().iterator();
 				String key;
 					while(it.hasNext()) {
 						key = it.next();
 						((RankData) users.get(key)).save(true);
 						it.remove();
-						//users.remove(key);
 					}
-					//server.getLogger().info("size : " + users.size());
 			return true;
 		}
 		userName = userName.toLowerCase();

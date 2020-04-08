@@ -10,7 +10,6 @@ public class AutoUnloadTask extends Task {
 	}
 	@Override
 	public void onRun(int currentTick) {
-		// TODO Auto-generated method stub
 		this.owner.unloadRank(null);
 	}
 

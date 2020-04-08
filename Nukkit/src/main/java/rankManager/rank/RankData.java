@@ -105,11 +105,11 @@ public class RankData {
 	}
 
 	public boolean isExistPrefixToIndex(int index) {
-		return this.getPrefixToIndex(index) != null ? true : false;
+		return this.getPrefixByIndex(index) != null ? true : false;
 	}
 
 	public boolean setPrefix(String prefix) {
-		this.data.put("nowPrefix", this.getIndexToPrefix(prefix));
+		this.data.put("nowPrefix", this.getIndexByPrefix(prefix));
 		return true;
 	}
 
@@ -118,7 +118,7 @@ public class RankData {
 	}
 
 	public String getPrefix() {
-		return (String) this.getPrefixToIndex((int) data.get("nowPrefix"));
+		return (String) this.getPrefixByIndex((int) data.get("nowPrefix"));
 	}
 
 	public String getSpecialPrefix() {
@@ -138,11 +138,11 @@ public class RankData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getIndexToPrefix(String Key) {
+	public int getIndexByPrefix(String prefix) {
 		index = 0;
 		is = 0;
 		((Map<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList")).forEach((key, value) -> {
-			if (key.equals(Key))
+			if (key.equals(prefix))
 				is = index;
 			index++;
 		});
@@ -150,7 +150,7 @@ public class RankData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getPrefixToIndex(int Key) {
+	public String getPrefixByIndex(int Key) {
 		index = 0;
 		iss = null;
 		((Map<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList")).forEach((key, value) -> {

@@ -1,7 +1,4 @@
 package rankManager.task;
-/*
- * 완료
- */
 
 import cn.nukkit.scheduler.Task;
 import rankManager.RankManager;
@@ -14,8 +11,6 @@ public class AutoSaveTask extends Task {
 	}
 	@Override
 	public void onRun(int currentTick) {
-		// TODO Auto-generated method stub
-
 		this.owner.save(true);
 	}
 

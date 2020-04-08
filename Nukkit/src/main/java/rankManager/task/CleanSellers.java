@@ -11,8 +11,6 @@ public class CleanSellers extends Task {
 	}
 	@Override
 	public void onRun(int currentTick) {
-		// TODO Auto-generated method stub
-
 		this.owner.cleanSellers();
 	}
 
