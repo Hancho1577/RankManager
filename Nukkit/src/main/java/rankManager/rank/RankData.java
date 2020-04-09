@@ -65,13 +65,15 @@ public class RankData {
 	}
 	
 	public void addNameTag(String pluginName, String nameTag) {
-		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new HashMap<String, String>());
+		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new TreeMap<String, String>());
 		nameTags.put(pluginName, nameTag);
+		this.data.put("nameTagList", nameTags);
 	}
 	
 	public void removeNameTag(String pluginName) {
-		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new HashMap<String, String>());
+		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new TreeMap<String, String>());
 		nameTags.remove(pluginName);
+		this.data.put("nameTagList", nameTags);
 	}
 
 	@SuppressWarnings("unchecked")
