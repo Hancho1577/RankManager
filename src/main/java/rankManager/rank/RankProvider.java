@@ -14,21 +14,22 @@ import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
 import rankManager.RankManager;
 
+@SuppressWarnings("unchecked")
 public class RankProvider {
 	private RankProvider instance = null;
-	private RankManager plugin;
-	private RankLoader loader;
-	private Server server;
-	private Map<String, Object> db;
+	private final RankManager plugin;
+	private final RankLoader loader;
+	private final Server server;
+	private final Map<String, Object> db;
 	public RankProvider (RankManager plugin) {
-		if(this.instance == null) instance = this;
+		instance = this;
 		this.plugin = plugin;
 		loader = plugin.getRankLoader();
 		server = Server.getInstance();
 		
-		db = (LinkedHashMap<String, Object>) (new Config(this.plugin.getDataFolder().getPath() + "/pluginDB.yml", Config.YAML, new ConfigSection(){
+		db = (new Config(this.plugin.getDataFolder().getPath() + "/pluginDB.yml", Config.YAML, new ConfigSection(){
 			{
-			set("defaultPrefix", plugin.getMessage("default-player-prefix"));
+			set("defaultPrefix", "§g유저");
 			set("defaultPrefixFormat" , "§f%prefix%");
 			set("chatFormat", "%special%§6[ %prefix%§f/ %name%§6]§f:§r %message%");
 			set("nameTagFormat" , "%prefix%%name%");
@@ -153,14 +154,16 @@ public class RankProvider {
 		RankData rank = loader.getRankByName(name);
 		TreeMap<String, String> nameTagList = rank.getNameTagList();
 		String string = (String) db.get("nameTagFormat");
-		String prefix = (String) rank.getPrefix();
+		String prefix = rank.getPrefix();
 		prefix  = (prefix == null) ? "" : this.applyPrefixFormat(prefix) + " ";
 		string = StringUtils.replace(string,"%prefix%", prefix);
 		string = StringUtils.replace(string,"%name%", TextFormat.WHITE + name);
 		sb.append(string);
 		
 		for(String nameTag : nameTagList.values()) {
-			sb.append("\n" + nameTag);
+			sb
+					.append("\n")
+				.append(nameTag);
 		}
 		
 		return sb.toString();
@@ -168,7 +171,7 @@ public class RankProvider {
 	
 	public void applyNameTag(String name) {
 		Player pl = server.getPlayer(name);
-		if(pl instanceof Player) {
+		if(pl != null) {
 			pl.setNameTag(this.applyNameTagFormat(name));
 		}
 	}

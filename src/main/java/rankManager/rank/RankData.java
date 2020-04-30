@@ -1,8 +1,6 @@
 package rankManager.rank;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,12 +8,13 @@ import java.util.TreeMap;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 
+@SuppressWarnings("unchecked")
 public class RankData {
-	private String userName;
-	private String dataFolder;
+	private final String userName;
+	private final String dataFolder;
 	private Map<String, Object> data;
 	private String nowSpecialPrefix = null;
-	private Map<String, Object> specialPrefixList = new LinkedHashMap<String, Object>();
+	private final Map<String, Object> specialPrefixList = new LinkedHashMap<>();
 	int index;
 	int is;
 	String iss;
@@ -29,7 +28,7 @@ public class RankData {
 	}
 
 	public void load() {
-		this.data = (Map<String, Object>) (new Config(this.dataFolder + this.userName + ".yml", Config.YAML,
+		this.data = (new Config(this.dataFolder + this.userName + ".yml", Config.YAML,
 				new ConfigSection() {
 					{
 						set("nowPrefix", null);
@@ -44,11 +43,11 @@ public class RankData {
 		data.save(async);
 	}
 
-	public void addPrefixs(String[] prefixs, int costs) {
+	public void addPrefixes(String[] prefixes, int costs) {
 		@SuppressWarnings("unchecked")
 		LinkedHashMap<String, LinkedHashMap<String, Integer>> plist = (LinkedHashMap<String, LinkedHashMap<String, Integer>>) this.data
 				.get("prefixList");
-		for (String prefix : prefixs)
+		for (String prefix : prefixes)
 			plist.put(prefix, new LinkedHashMap<String, Integer>() {
 				{
 					put("costs", costs);
@@ -59,43 +58,39 @@ public class RankData {
 		this.data.put("prefixList", plist);
 	}
 
-	public void addSpecialPrefixs(String[] prefixs) {
-		for (String prefix : prefixs)
+	public void addSpecialPrefixes(String[] prefixes) {
+		for (String prefix : prefixes)
 			this.specialPrefixList.put(prefix, true);
 	}
 	
 	public void addNameTag(String pluginName, String nameTag) {
-		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new TreeMap<String, String>());
+		TreeMap<String, String> nameTags = this.getNameTagList();
 		nameTags.put(pluginName, nameTag);
 		this.data.put("nameTagList", nameTags);
 	}
 	
 	public void removeNameTag(String pluginName) {
-		TreeMap<String, String> nameTags = (TreeMap<String, String>) this.data.getOrDefault("nameTagList", new TreeMap<String, String>());
+		TreeMap<String, String> nameTags = this.getNameTagList();
 		nameTags.remove(pluginName);
 		this.data.put("nameTagList", nameTags);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void deletePrefixs(String[] prefixs) {
+	public void deletePrefixes(String[] prefixes) {
 		LinkedHashMap<String, LinkedHashMap<String, Integer>> plist = (LinkedHashMap<String, LinkedHashMap<String, Integer>>) this.data
 				.get("prefixList");
-		for (String prefix : prefixs) {
-			if (plist.containsKey(prefix)) {
-				plist.remove(prefix);
-			}
+		for (String prefix : prefixes) {
+			plist.remove(prefix);
 		}
 		this.data.put("prefixList", plist);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void deleteSpecialPrefixs(String[] prefixs) {
+	public void deleteSpecialPrefixes(String[] prefixes) {
 		LinkedHashMap<String, LinkedHashMap<String, Integer>> plist = (LinkedHashMap<String, LinkedHashMap<String, Integer>>) this.data
 				.get("prefixList");
-		for (String prefix : prefixs) {
-			if (plist.containsKey(prefix)) {
-				plist.remove(prefix);
-			}
+		for (String prefix : prefixes) {
+			plist.remove(prefix);
 		}
 		this.data.put("prefixList", plist);
 	}
@@ -107,7 +102,7 @@ public class RankData {
 	}
 
 	public boolean isExistPrefixToIndex(int index) {
-		return this.getPrefixByIndex(index) != null ? true : false;
+		return this.getPrefixByIndex(index) != null;
 	}
 
 	public boolean setPrefix(String prefix) {
@@ -120,13 +115,13 @@ public class RankData {
 	}
 
 	public String getPrefix() {
-		return (String) this.getPrefixByIndex((int) data.get("nowPrefix"));
+		return this.getPrefixByIndex((int) data.get("nowPrefix"));
 	}
 
 	public String getSpecialPrefix() {
 		return nowSpecialPrefix;
 	}
-
+	
 	public LinkedHashMap<String, LinkedHashMap<String, Integer>> getPrefixList() {
 		return (LinkedHashMap<String, LinkedHashMap<String, Integer>>) data.get("prefixList");
 	}
@@ -136,7 +131,19 @@ public class RankData {
 	}
 	
 	public TreeMap<String, String> getNameTagList() {
-		return (TreeMap<String, String>) data.getOrDefault("nameTagList", new TreeMap<String, String>());
+		if(!data.containsKey("nameTagList")) {
+			return new TreeMap<>();
+		}
+		TreeMap<String, String> treeMap;
+
+		if(data.get("nameTagList") instanceof ConfigSection) {
+			LinkedHashMap<String, String> map =  (LinkedHashMap<String, String>) data.get("nameTagList");
+			treeMap = new TreeMap<>();
+			map.forEach(treeMap::put);
+		}else {
+			treeMap = (TreeMap<String, String>) data.get("nameTagList");
+		}
+		return treeMap;
 	}
 
 	@SuppressWarnings("unchecked")

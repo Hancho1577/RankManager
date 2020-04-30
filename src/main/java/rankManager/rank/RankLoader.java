@@ -10,14 +10,13 @@ import rankManager.task.AutoUnloadTask;
 
 public class RankLoader {
 	private RankLoader instance = null;
-	private ConfigSection users = new ConfigSection();
-	private RankManager plugin;
-	private Server server;
+	private final ConfigSection users = new ConfigSection();
+	private final RankManager plugin;
 	ConfigSection temp;
 	
 	public RankLoader(RankManager plugin) {
 		if(this.instance == null) this.instance = this;
-		this.server = Server.getInstance();
+		Server server = Server.getInstance();
 		this.plugin = plugin;
 		
 		this.plugin.getServer().getScheduler().scheduleRepeatingTask(new AutoUnloadTask(this), 12000);
@@ -57,9 +56,7 @@ public class RankLoader {
 		return (RankData) users.get(userName);
 	}
 	public void save(Boolean async) {
-		users.forEach((Key, value)->{
-				((RankData)value).save(async);
-		});
+		users.forEach((Key, value)-> ((RankData)value).save(async));
 	}
 	public RankLoader getInstance() {
 		return instance;

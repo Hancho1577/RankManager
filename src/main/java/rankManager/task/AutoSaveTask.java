@@ -4,7 +4,7 @@ import cn.nukkit.scheduler.Task;
 import rankManager.RankManager;
 
 public class AutoSaveTask extends Task {
-	protected RankManager owner;
+	protected final RankManager owner;
 
 	public AutoSaveTask(RankManager pl) {
 		this.owner = pl;

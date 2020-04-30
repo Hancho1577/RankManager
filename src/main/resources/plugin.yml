@@ -1,5 +1,5 @@
 name: RankManager
-author: ifteam
+author: ifteam, hancho
 version: 1.0.0
 main: rankManager.RankManager
 api: [1.0.0]
@@ -15,3 +15,7 @@ permissions:
   default: true
  rankmanager.rank.control:
   default: OP
+
+softdepend:
+ - HcDiscordBot
+ - BossbarManager

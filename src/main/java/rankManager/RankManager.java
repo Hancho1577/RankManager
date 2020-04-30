@@ -4,7 +4,6 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.event.Listener;
-import cn.nukkit.utils.TextFormat;
 import hancho.BossbarManager.BossbarManager;
 import hancho.plugin.nukkit.mailbox.mailbox;
 import rankManager.listener.EventListener;
@@ -19,37 +18,34 @@ import cn.nukkit.command.CommandSender;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//import java.util.LinkedHashMap;
-//import java.util.Map;
-
 import cn.nukkit.Player;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandMap;
 import cn.nukkit.command.PluginCommand;
 
 public class RankManager extends PluginBase implements Listener {
+	public static final String PREFIX = "§l§f《 서버 》§f";
 	public BossbarManager bossbarManager;
 	public mailbox mailbox;
-	Map<String, Object> messages;
-	static RankManager instance;
-	Config config;
-	Map<String, Object> data;
-	Config test;
-	EventListener eventListener;
-	RankLoader rankLoader;
-	RankProvider rankProvider;
-	ListenerLoader listenerLoader;
+	private static RankManager instance;
+	private  Config config;
+	private Map<String, Object> data;
+	private Config test;
+	private EventListener eventListener;
+	private RankLoader rankLoader;
+	private RankProvider rankProvider;
+	private ListenerLoader listenerLoader;
+
 	@Override
 	public void onEnable() {
 		if(instance == null) instance = this;
-		saveDefaultConfig();
-		config = new Config(this.getDataFolder().getPath() + "/list.yml", Config.YAML);
-		data = (Map<String, Object>) config.getAll();
-		initMessage();
-		rankLoader = new RankLoader(this);
-		rankProvider = new RankProvider(this);
-		listenerLoader = new ListenerLoader(this);
-		eventListener = new EventListener(this);
+		this.saveDefaultConfig();
+		this.config = new Config(this.getDataFolder().getPath() + "/list.yml", Config.YAML);
+		this.data = config.getAll();
+		this.rankLoader = new RankLoader(this);
+		this.rankProvider = new RankProvider(this);
+		this.listenerLoader = new ListenerLoader(this);
+		this.eventListener = new EventListener(this);
 		
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getScheduler().scheduleRepeatingTask(new AutoSaveTask(this), 12000, true);
@@ -62,7 +58,7 @@ public class RankManager extends PluginBase implements Listener {
 			this.bossbarManager = (BossbarManager) getServer().getPluginManager().getPlugin("BossbarManager");
 		}
 		
-		this.registerCommand(getMessage("rank"), "rankmanager.rank.manage", getMessage("rank-description"), getMessage("rank"));
+		this.registerCommand("칭호", "rankmanager.rank.manage", "칭호를 관리합니다.", "칭호");
 	}
 	
 	@Override
@@ -111,11 +107,6 @@ public class RankManager extends PluginBase implements Listener {
 		config.save();
 	}
 	
-	@Deprecated
-	public String getMessage(String var) {
-		return (String) this.messages.get("kor-" + var);
-	}
-	
 	public RankProvider getRankProvider() {
 		return this.rankProvider;
 	}
@@ -153,17 +144,20 @@ public class RankManager extends PluginBase implements Listener {
 		commandMap.register(name, command);
 	}
 	
-	private void initMessage() {
-		this.saveResource("messages.yml");
-		messages =(Map<String, Object>) (new Config(this.getDataFolder().getPath()  + "/messages.yml" , Config.YAML )).getAll();
-	}
-	
 	public void message(Player player, String text) {
-		player.sendMessage(TextFormat.DARK_AQUA + getMessage("default-prefix") + " " + text);
+		player.sendMessage(PREFIX + " " + text);
+	}
+
+	public void message(CommandSender player, String text) {
+		player.sendMessage(PREFIX + " " + text);
 	}
 	
 	public void alert(Player player, String text) {
-		player.sendMessage(TextFormat.RED + getMessage("default-prefix") + " " + text);
+		player.sendMessage(PREFIX + " " + text);
+	}
+
+	public void alert(CommandSender player, String text) {
+		player.sendMessage(PREFIX + " " + text);
 	}
 	
 	public static RankManager getInstance() {

@@ -4,7 +4,7 @@ import cn.nukkit.scheduler.Task;
 import rankManager.RankManager;
 
 public class CleanSellers extends Task {
-	protected RankManager owner;
+	protected final RankManager owner;
 
 	public CleanSellers(RankManager pl) {
 		this.owner = pl;

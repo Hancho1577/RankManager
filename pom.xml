@@ -31,6 +31,16 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.8</version>
 		</dependency>
+		<dependency>
+			<groupId>hancho.plugin.nukkit.mailbox</groupId>
+			<artifactId>mailbox</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>hancho.BossbarManager</groupId>
+			<artifactId>BossbarManager</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>

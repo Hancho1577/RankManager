@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.nukkit.event.EventPriority;
 import org.apache.commons.lang3.StringUtils;
 
 import cn.nukkit.Player;
@@ -46,20 +47,20 @@ public class EventListener implements Listener {
 	public static final int INPUT_PLAYER_FOR_DEL_PREFIX_FORM_ID = 28406;
 	public static final int CHANGE_NICK_FORM_ID = 28407;
 	public static final int CHANGE_PREFIX_FOR_ADMIN_FORM_ID = 28408;
-	public LinkedHashMap<String, String> uiPrefixSet = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> uiSeeOtherPlayersPrefix = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> uiDeletePrefix = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> uiAdminDeletePrefix = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> uiAdminDeleteSelPrefix = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> uiAdminChangePrefix = new LinkedHashMap<>();
-	public LinkedHashMap<String, Integer> uiSaveCostForSelling = new LinkedHashMap<>();
-	public LinkedHashMap<String, String> selectedSeller = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiPrefixSet = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiSeeOtherPlayersPrefix = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiDeletePrefix = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiAdminDeletePrefix = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiAdminDeleteSelPrefix = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> uiAdminChangePrefix = new LinkedHashMap<>();
+	public final LinkedHashMap<String, Integer> uiSaveCostForSelling = new LinkedHashMap<>();
+	public final LinkedHashMap<String, String> selectedSeller = new LinkedHashMap<>();
 	
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분 ss초");
-	private RankManager plugin;
-	private RankLoader loader;
-	private RankProvider provider;
-	private ListenerLoader listenerLoader;
+	private final RankManager plugin;
+	private final RankLoader loader;
+	private final RankProvider provider;
+	private final ListenerLoader listenerLoader;
 
 	public EventListener(RankManager plugin) {
 		this.plugin = plugin;
@@ -70,7 +71,7 @@ public class EventListener implements Listener {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 
-	public final boolean isNumeric(String s) {
+	public static boolean isNumeric(String s) {
 		try {
 			Double.parseDouble(s);
 			return true;
@@ -89,7 +90,7 @@ public class EventListener implements Listener {
 		RankData rankData = this.loader.getRank(e.getPlayer());
 		if (this.provider.getDefaultPrefix() != null) {
 			if (!rankData.isExistPrefix(this.provider.getDefaultPrefix())) {
-				rankData.addPrefixs(new String[] { this.provider.getDefaultPrefix() }, 1);
+				rankData.addPrefixes(new String[] { this.provider.getDefaultPrefix() }, 1);
 			}
 			rankData.setPrefix(this.provider.getDefaultPrefix());
 		}
@@ -106,7 +107,7 @@ public class EventListener implements Listener {
 		this.loader.unloadRank(e.getPlayer().getName());
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerChatEvent(PlayerChatEvent e) {
 		e.setFormat(this.provider.applyChatFormat(e.getPlayer().getName(), "§7" + e.getMessage()));
 	}
@@ -116,9 +117,9 @@ public class EventListener implements Listener {
 		if (!e.getPlayer().hasPermission("rankmanager.rankshop.create"))
 			return;
 		String line = e.getLine(0);
-		if (this.plugin.getMessage("rankshop").equals(line)) {
+		if ("칭호판매".equals(line)) {
 			if (e.getLine(1) == null || e.getLine(2) == null || !isNumeric(e.getLine(2))) {
-				this.plugin.message(e.getPlayer(), this.plugin.getMessage("rankshop-help"));
+				this.plugin.message(e.getPlayer(), "도움말: §61줄§f->칭호판매, §62줄§f->판매원하는칭호명, §63줄§f->가격 , §64줄§f->가치값");
 				return;
 			}
 			
@@ -142,9 +143,9 @@ public class EventListener implements Listener {
 			this.provider.setRankShop(levelName, x, y, z, requestedPrefix, requestedPrice,
 					Integer.parseInt(e.getLine(3).trim()));
 			String formattedPrefix = this.provider.applyPrefixFormat(requestedPrefix);
-			e.setLine(0, this.plugin.getMessage("rankshop-format1"));
-			e.setLine(1, StringUtils.replace(this.plugin.getMessage("rankshop-format2"), "%prefix%", formattedPrefix, 1));
-			e.setLine(2, StringUtils.replace(this.plugin.getMessage("rankshop-format3"), "%price%",
+			e.setLine(0, "§l§f[ §g터치§f로 칭호구매 ]");
+			e.setLine(1, StringUtils.replace("%prefix%", "%prefix%", formattedPrefix, 1));
+			e.setLine(2, StringUtils.replace("§l§g가격 : §g%price%§f원", "%price%",
 					numberToKorean(requestedPrice), 1));
 			e.setLine(3, "§g§l가치값 §f: " + e.getLine(3).trim());
 		}
@@ -161,11 +162,11 @@ public class EventListener implements Listener {
 		if (rankShop != null) {
 			if (!event.getPlayer().hasPermission("rankmanager.rankshop.delete")) {
 				event.setCancelled();
-				this.plugin.alert(event.getPlayer(), this.plugin.getMessage("you-cant-break-rank-shop"));
+				this.plugin.alert(event.getPlayer(), "§c칭호판매대를 삭제할 권한이 없습니다 !");
 				return;
 			}
 			this.provider.deleteRankShop(levelName, x, y, z);
-			this.plugin.message(event.getPlayer(), this.plugin.getMessage("rank-shop-deleted"));
+			this.plugin.message(event.getPlayer(), "칭호판매대가 §6삭제§f되었습니다 !");
 		}
 	}
 
@@ -183,38 +184,38 @@ public class EventListener implements Listener {
 		}
 		
 		if (economyAPI == null) {
-			this.plugin.alert(event.getPlayer(), this.plugin.getMessage("there-are-no-economyapi"));
+			this.plugin.alert(event.getPlayer(), "이코노미 API가 없습니다, 구매 불가능 !");
 			return;
 		}
 		
 		event.setCancelled();
 		
-		if (event.getPlayer().hasPermission("rankmanager.rankshop.use") != true) {
-			this.plugin.alert(event.getPlayer(), this.plugin.getMessage("rankshop-you-cant-buy-rank"));
+		if (!event.getPlayer().hasPermission("rankmanager.rankshop.use")) {
+			this.plugin.alert(event.getPlayer(), "칭호를 구매할 수 있는 권한이 없습니다 !");
 			return;
 		}
 
 		double myMoney = economyAPI.myMoney(event.getPlayer());
 		
 		if ((int) rankShop.get("price") > myMoney) {
-			this.plugin.message(event.getPlayer(), this.plugin.getMessage("rankshop-not-enough-money"));
+			this.plugin.message(event.getPlayer(),"돈이 §6부족§f합니다 !");
 			return;
 		}
 
 		RankData rankData = this.loader.getRank(event.getPlayer());
 		
 		if (rankData.isExistPrefix((String) rankShop.get("prefix"))) {
-			this.plugin.alert(event.getPlayer(), this.plugin.getMessage("already-buy-that-prefix"));
-			this.plugin.alert(event.getPlayer(), this.plugin.getMessage("you-can-change-prefix"));
+			this.plugin.alert(event.getPlayer(), "§6이미§f구매한 칭호입니다 ! §c구매할 수 없습니다§f !");
+			this.plugin.alert(event.getPlayer(), "( §6/칭호 변경 칭호번호§f 또는 §6칭호 UI§f에서 변경 가능합니다 ! )");
 			return;
 		}
 
 		String[] temp = { (String) rankShop.get("prefix") };
 		economyAPI.reduceMoney(event.getPlayer(), (Integer) rankShop.get("price"));
-		rankData.addPrefixs(temp, (Integer) rankShop.get("prePrice"));
+		rankData.addPrefixes(temp, (Integer) rankShop.get("prePrice"));
 		rankData.setPrefix(temp[0]);
-		this.plugin.message(event.getPlayer(), this.plugin.getMessage("prefix-buy-success"));
-		this.plugin.message(event.getPlayer(), this.plugin.getMessage("you-can-use-rank-set"));
+		this.plugin.message(event.getPlayer(), "해당 칭호를 §6성공적으로§f 구매했습니다 !");
+		this.plugin.message(event.getPlayer(), "§6/칭호 §f를 사용해서 나오는 UI의 §6칭호 설정§f기능으로 사용할 수 있어요!");
 	}
 
 	public void showSimpleForm(Player player, String title, String content) {
@@ -280,7 +281,7 @@ public class EventListener implements Listener {
 	}
 
 	public void showPrefixListUi(Player player) {
-		ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
+		ArrayList<ElementButton> buttons = new ArrayList<>();
 		LinkedHashMap<String, LinkedHashMap<String, Integer>> target = this.loader.getRank(player).getPrefixList();
 
 		Object[] index_key = target.keySet().toArray();
@@ -314,7 +315,7 @@ public class EventListener implements Listener {
 				} else if (clickedButton.equals("§l§8칭호 경매")) {
 
 				} else if (clickedButton.equals("§l§8칭호 삭제")) {
-					ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
+					ArrayList<ElementButton> buttons = new ArrayList<>();
 					LinkedHashMap<String, LinkedHashMap<String, Integer>> target = this.loader.getRank(player)
 							.getPrefixList();
 
@@ -365,7 +366,7 @@ public class EventListener implements Listener {
 				
 				String sellerName = button.getText().split("판매자 §f: ")[1].split("\n")[0];
 				
-				if (this.provider.isSelling(sellerName) == false) {
+				if (!this.provider.isSelling(sellerName)) {
 					showSimpleForm(player, "§l§8칭호 거래소", "§f§l해당 칭호는 방금 판매가 끝난 칭호입니다 ㅜㅜ");
 					return;
 				}
@@ -382,18 +383,29 @@ public class EventListener implements Listener {
 
 				}
 				
-				String lefttime = "";
+				String lefttime;
 				
 				int date = (int) data.get("date") - (int) (System.currentTimeMillis() / 1000);
 				if ((date / 3600) >= 1) {
-					lefttime = "§6" + (int) Math.floor(date / 3600) + "§f시간 §6" + (int) Math.floor((date % 3600) / 60)
-							+ "§f분";
+					lefttime = new StringBuilder()
+							.append("§6")
+							.append((int) Math.floor(date / 3600))
+							.append("§f시간 §6")
+							.append((int) Math.floor((date % 3600) / 60))
+							.append("§f분").toString();
 				} else {
 					lefttime = "§c" + (int) Math.floor(date / 60) + "§f분";
 				}
 				
-				String content = "§6§l칭호 §f: §r" + data.get("prefix") + "\n§6§l판매가 §f: §g" + data.get("price") + "\n§6가치값 §f: §g"
-								+ data.get("cost") + "\n§6남은 시간 §f: §g" + lefttime;
+				String content = new StringBuilder()
+						.append("§6§l칭호 §f: §r")
+						.append(data.get("prefix"))
+						.append("\n§6§l판매가 §f: §g")
+						.append(data.get("price"))
+						.append("\n§6가치값 §f: §g")
+						.append(data.get("cost"))
+						.append("\n§6남은 시간 §f: §g")
+						.append(lefttime).toString();
 				
 				FormWindowSimple form = new FormWindowSimple("§l§8칭호 거래소", content, buttons);
 				this.selectedSeller.put(player.getName(), sellerName);
@@ -411,14 +423,14 @@ public class EventListener implements Listener {
 					showSimpleForm(player, "§l§8칭호 거래소", "§f§l성공적으로 판매가 중단되었습니다.");
 					return;
 				}
-				if (button.getText().equals("§8§l구매할래요") == false)
+				if (!button.getText().equals("§8§l구매할래요"))
 					return;
 				String sellerName = this.selectedSeller.get(player.getName());
 				if (sellerName == null) {
 					showSimpleForm(player, "§l§8칭호 거래소", "§l§f서버 오류가 발생하였습니다.");
 					return;
 				}
-				if (this.provider.isSelling(sellerName) == false) {
+				if (!this.provider.isSelling(sellerName)) {
 					showSimpleForm(player, "§l§8칭호 거래소", "§f§l해당 칭호는 판매가 끝난 칭호입니다.");
 					return;
 				}
@@ -443,7 +455,7 @@ public class EventListener implements Listener {
 					showSimpleForm(player, "§l§8칭호 거래소", "§f죄송합니다.\n해당 칭호를 일시적으로 구매할 수 없습니다.");
 					return;
 				}
-				rankData.deletePrefixs(new String[] { prefix });
+				rankData.deletePrefixes(new String[] { prefix });
 				if (rankData.getPrefix() != null) {
 					if (rankData.getPrefix().equals(prefix)) {
 						double random = Math.random();
@@ -455,21 +467,38 @@ public class EventListener implements Listener {
 					}
 				}
 				RankData playerRankData = this.loader.getRankByName(player.getName());
-				playerRankData.addPrefixs(new String[] { (String) data.get("prefix") }, (int) data.get("cost"));
+				playerRankData.addPrefixes(new String[] { (String) data.get("prefix") }, (int) data.get("cost"));
 				economyAPI.reduceMoney(player, (int) data.get("price"));
 				economyAPI.addMoney(sellerName, (int) data.get("price"));
 				Player sellerPlayer = this.plugin.getServer().getPlayerExact(sellerName);
-				this.plugin.getServer().broadcastMessage("§l§6" + player.getName() + "§f님이 §6" + sellerName + "§f님의 칭호 §r"
-						+ data.get("prefix") + "§r§l§f를 구매하셨습니다!");
+				this.plugin.getServer().broadcastMessage(new StringBuilder("§l§6")
+						.append(player.getName())
+						.append("§f님이 §6")
+						.append(sellerName)
+						.append("§f님의 칭호 §r")
+						.append(data.get("prefix"))
+						.append("§r§l§f를 구매하셨습니다!").toString());
 				if (sellerPlayer != null) {
 					sellerPlayer.sendTitle("§f§l칭호 판매 §6성공§f!", "§f앗싸! §e" + data.get("price") + "§f원 얻었다!", 20, 40,
 							20);
 				} else {
-					plugin.addMail(sellerName, "§l§f[ 칭호 ] §d" + player.getName() + "§f님이 §r" + (String) data.get("prefix")
-							+ "§r§l를 §d " + data.get("price") + "§f원에 구매하셨습니다.");
+					plugin.addMail(sellerName, new StringBuilder()
+							.append("§l§f[ 칭호 ] §d")
+							.append(player.getName())
+							.append("§f님이 §r")
+							.append(data.get("prefix"))
+							.append("§r§l를 §d ")
+							.append(data.get("price"))
+							.append("§f원에 구매하셨습니다.").toString());
 				}
-				this.plugin.showBossbar("§d§l" + player.getName() + "§f님이 §d" + sellerName + "§f님의 칭호 §r"
-						+ (String) data.get("prefix") + "§r§l를 구매하였습니다.");
+				this.plugin.showBossbar(new StringBuilder()
+						.append("§d§l")
+						.append(player.getName())
+						.append("§f님이 §d")
+						.append(sellerName)
+						.append("§f님의 칭호 §r")
+						.append(data.get("prefix"))
+						.append("§r§l를 구매하였습니다.").toString());
 				this.provider.removeSeller(sellerName);
 				showSimpleForm(player, "§l§8칭호 거래소", "§f§l성공적으로 §r" + data.get("prefix") + " §r§f§l를 구매하셨습니다.");
 			} else if (formId == PREFIX_LIST_FORM_ID) {
@@ -486,19 +515,25 @@ public class EventListener implements Listener {
 						.getPrefixList();
 				Object[] index_key = target.keySet().toArray();
 				for (Object prefix : index_key) {
-					if (!((String) prefix).equals(selectedPrefix))
+					if (!prefix.equals(selectedPrefix))
 						continue;
-					costs = ((LinkedHashMap<String, Integer>) target.get((String) prefix)).get("costs");
+					costs = target.get(prefix).get("costs");
 					perchasedDate = sdf
-							.format(((LinkedHashMap<String, Integer>) target.get((String) prefix)).get("date") * 1000L);
+							.format(target.get(prefix).get("date") * 1000L);
 					break;
 				}
 				ArrayList<ElementButton> buttons = new ArrayList<>();
 				buttons.add(new ElementButton("§8§l칭호로 설정하기"));
 				buttons.add(new ElementButton("§8§l판매하기"));
 				buttons.add(new ElementButton("§8§l돌아가기"));
-				FormWindowSimple prefixInfoWindow = new FormWindowSimple("§8§l칭호 정보", "§g§l칭호§f : §r" + selectedPrefix
-						+ "\n§r§l§g얻은 날짜§f : §e" + perchasedDate + "\n§g가치 §f: §e" + numberToKorean(costs) + "원\n\n",
+				FormWindowSimple prefixInfoWindow = new FormWindowSimple("§8§l칭호 정보", new StringBuilder()
+						.append("§g§l칭호§f : §r")
+						.append(selectedPrefix)
+						.append("\n§r§l§g얻은 날짜§f : §e")
+						.append(perchasedDate)
+						.append("\n§g가치 §f: §e")
+						.append(numberToKorean(costs))
+						.append("원\n\n").toString(),
 						buttons);
 				this.uiPrefixSet.put(player.getName(), selectedPrefix);
 				this.plugin.getLogger().info(player.getName() + "님이 칭호 : " + selectedPrefix + "의 정보를 조회하셨습니다.");
@@ -517,7 +552,7 @@ public class EventListener implements Listener {
 						this.plugin.getLogger().error(playerName + "님의 칭호 설정 요청이 오류로 인해 거부되었습니다.");
 						return;
 					}
-					RankData rankData = this.loader.getRank((Player) player);
+					RankData rankData = this.loader.getRank(player);
 					rankData.setPrefix(selectedPrefix);
 					this.provider.applyNameTag(playerName);
 					player.showFormWindow(new FormWindowSimple("§8§l칭호 설정",
@@ -528,12 +563,17 @@ public class EventListener implements Listener {
 					ArrayList<Element> elements = new ArrayList<>();
 					LinkedHashMap<String, LinkedHashMap<String, Integer>> rd = this.provider.getRank(player)
 							.getPrefixList();
-					int cost = ((LinkedHashMap<String, Integer>) rd.get((String) this.uiPrefixSet.get(playerName)))
+					int cost = rd.get(this.uiPrefixSet.get(playerName))
 							.get("costs");
 					this.uiSaveCostForSelling.put(playerName, cost);
-					elements.add(new ElementLabel("§f§l정말 " + this.uiPrefixSet.get(playerName)
-							+ " §r§l 를 판매하실건가요?\n해당 칭호의 가치는 §g" + numberToKorean(cost) + "§f원 입니다.\n해당 칭호는 §g"
-							+ ((cost / 2) > 0 ? (cost / 2) : 1) + " ~ 500백만원§f의 가격으로 판매할 수 있습니다."));
+					elements.add(new ElementLabel(new StringBuilder()
+							.append("§f§l정말 ")
+							.append(this.uiPrefixSet.get(playerName))
+							.append(" §r§l 를 판매하실건가요?\n해당 칭호의 가치는 §g")
+							.append(numberToKorean(cost))
+							.append("§f원 입니다.\n해당 칭호는 §g")
+							.append((cost / 2) > 0 ? (cost / 2) : 1)
+							.append(" ~ 500백만원§f의 가격으로 판매할 수 있습니다.").toString()));
 					elements.add(new ElementInput("", "판매가"));
 					FormWindowCustom cutomForm = new FormWindowCustom("§8§l칭호 판매", elements);
 					player.showFormWindow(cutomForm, 4900);
@@ -543,9 +583,9 @@ public class EventListener implements Listener {
 			} else if (formId == 15099) { // 칭호 확인 플레이어 이름 없음
 				ElementButton clickedButton = window.getResponse().getClickedButton();
 				if (clickedButton != null) {
-					if (clickedButton.getText() == "§8§l돌아가기") {
+					if (clickedButton.getText().equals("§8§l돌아가기")) {
 						showSelectingPlayerForm(player);
-					} else if (clickedButton.getText() == "§8§l메인으로") {
+					} else if (clickedButton.getText().equals("§8§l메인으로")) {
 						showMainForm(player);
 					}
 				}
@@ -568,18 +608,27 @@ public class EventListener implements Listener {
 						.getPrefixList();
 				Object[] index_key = target.keySet().toArray();
 				for (Object prefix : index_key) {
-					if (!((String) prefix).equals(buttonText))
+					if (!prefix.equals(buttonText))
 						continue;
-					costs = ((LinkedHashMap<String, Integer>) target.get((String) prefix)).get("costs");
+					costs = target.get(prefix).get("costs");
 					perchaseDate = sdf
-							.format(((LinkedHashMap<String, Integer>) target.get((String) prefix)).get("date") * 1000L);
+							.format(target.get(prefix).get("date") * 1000L);
 					break;
 				}
 				ArrayList<ElementButton> buttons = new ArrayList<>();
 				buttons.add(new ElementButton("§8§l메인으로"));
-				FormWindowSimple prefixInfoWindow = new FormWindowSimple("§8§l§o" + targetPlayer + "§r§o§8의 칭호 정보",
-						"§g§l칭호§f : §r" + buttonText + "\n§r§l§g얻은 날짜§f : §e" + perchaseDate + "\n§g가치 §f: §e"
-								+ numberToKorean(costs) + "원\n\n",
+				FormWindowSimple prefixInfoWindow = new FormWindowSimple(new StringBuilder()
+						.append("§8§l§o")
+						.append(targetPlayer)
+						.append("§r§o§8의 칭호 정보").toString(),
+						new StringBuilder()
+								.append("§g§l칭호§f : §r")
+								.append(buttonText)
+								.append("\n§r§l§g얻은 날짜§f : §e")
+								.append(perchaseDate)
+								.append("\n§g가치 §f: §e")
+								.append(numberToKorean(costs))
+								.append("원\n\n").toString(),
 						buttons);
 				player.showFormWindow(prefixInfoWindow, 15922);
 			} else if (formId == 15922) {
@@ -598,7 +647,10 @@ public class EventListener implements Listener {
 				}
 				this.uiDeletePrefix.put(player.getName(), clickedButtonText);
 				FormWindowModal modalForm = new FormWindowModal("§8§l칭호 삭제",
-						"§l§f정말 " + clickedButtonText + "§r§l§f칭호를 §c삭제§f하실건가요?\n§c이 작업은 되돌릴 수 없습니다!", "네", "아니오");
+						new StringBuilder()
+								.append("§l§f정말 ")
+								.append(clickedButtonText)
+								.append("§r§l§f칭호를 §c삭제§f하실건가요?\n§c이 작업은 되돌릴 수 없습니다!").toString(), "네", "아니오");
 				player.showFormWindow(modalForm, 1922);
 			} else if (formId == 1101) {
 				String tartgetNick = this.uiAdminDeletePrefix.get(player.getName());
@@ -614,8 +666,12 @@ public class EventListener implements Listener {
 					return;
 				}
 				FormWindowModal aModal = new FormWindowModal("§8§l칭호 삭제",
-						"§l§f정말 §6" + tartgetNick + "§f님의 " + clickedButtonString
-								+ "§r§f§l을 §c삭제§f하시겠어요?\n§c복구할 수 없어요! 물론 다시 추가하면 되겠지만 date값과 가치값은 되돌릴 수 없습니다!",
+						new StringBuilder()
+								.append("§l§f정말 §6")
+								.append(tartgetNick)
+								.append("§f님의 ")
+								.append(clickedButtonString)
+								.append("§r§f§l을 §c삭제§f하시겠어요?\n§c복구할 수 없어요! 물론 다시 추가하면 되겠지만 date값과 가치값은 되돌릴 수 없습니다!").toString(),
 						"네", "아니오");
 				this.uiAdminDeleteSelPrefix.put(player.getName(), clickedButtonString);
 				player.showFormWindow(aModal, 1937);
@@ -625,7 +681,7 @@ public class EventListener implements Listener {
 				if (targetName == null)
 					return;
 				String targetPrefix = button.getText();
-				if (targetPrefix == "§c§l취소하기") {
+				if (targetPrefix.equals("§c§l취소하기")) {
 					showMainForm(player);
 					return;
 				}
@@ -663,17 +719,17 @@ public class EventListener implements Listener {
 					player.showFormWindow(plzEnterName, 15099);
 				} else {
 					targetPlayerName = targetPlayerName.trim();
-					Player player2 = (Player) this.plugin.getServer().getPlayer(targetPlayerName);
+					Player player2 = this.plugin.getServer().getPlayer(targetPlayerName);
 					if (player2 == null) {
 						RankData rankData = this.loader.getRankByName(targetPlayerName);
 						if (rankData.getPrefixList().size() > 0) {
-							ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
-							rankData.getPrefixList().forEach((prefix, bool) -> {
-								buttons.add(new ElementButton((String) prefix));
-							});
+							ArrayList<ElementButton> buttons = new ArrayList<>();
+							rankData.getPrefixList().forEach((prefix, bool) -> buttons.add(new ElementButton((String) prefix)));
 							this.plugin.getLogger().info(player.getName() + ",0,칭호확인," + targetPlayerName);
 							this.uiSeeOtherPlayersPrefix.put(player.getName(), targetPlayerName);
-							FormWindowSimple newWindow = new FormWindowSimple("§8§l" + targetPlayerName + "의 칭호 목록",
+							FormWindowSimple newWindow = new FormWindowSimple(new StringBuilder()
+									.append("§8§l").append(targetPlayerName)
+									.append("의 칭호 목록").toString(),
 									"§l§f칭호 " + rankData.getPrefixList().size() + "개", buttons);
 							player.showFormWindow(newWindow, 1530);
 						} else {
@@ -686,7 +742,7 @@ public class EventListener implements Listener {
 						}
 						return;
 					}
-					ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
+					ArrayList<ElementButton> buttons = new ArrayList<>();
 					LinkedHashMap<String, LinkedHashMap<String, Integer>> target = this.loader.getRank(player2)
 							.getPrefixList();
 
@@ -702,7 +758,7 @@ public class EventListener implements Listener {
 
 				}
 			} else if (formId == CHANGE_NICK_FORM_ID) { // 닉네임
-				if (player.isOp() == false)
+				if (!player.isOp())
 					return;
 				String targetnick = (String) window.getResponse().getResponse(1);
 				String nick = (String) window.getResponse().getResponse(2);
@@ -721,12 +777,16 @@ public class EventListener implements Listener {
 				}
 
 				this.plugin.korea(targetnick, nick);
-				FormWindowSimple simpleForm = new FormWindowSimple("§8§l닉네임 변경", "§f§6" + targetnick + "§f님의 닉네임이 "
-						+ nick + "으로 변경되었어요. \n 참고로 유효하지 않은 닉네임인지 확인해 주셔야 해요.\n유효하지 않은 플레이어의 이름이라도 변경되거든요!");
+				FormWindowSimple simpleForm = new FormWindowSimple("§8§l닉네임 변경", new StringBuilder()
+						.append("§f§6")
+						.append(targetnick)
+						.append("§f님의 닉네임이 ")
+						.append(nick)
+						.append("으로 변경되었어요. \n 참고로 유효하지 않은 닉네임인지 확인해 주셔야 해요.\n유효하지 않은 플레이어의 이름이라도 변경되거든요!").toString());
 				player.showFormWindow(simpleForm);
 				return;
 			} else if (formId == INPUT_PLAYER_FOR_DEL_PREFIX_FORM_ID) { 
-				if (player.isOp() == false) {
+				if (!player.isOp()) {
 					return;
 				}
 				
@@ -743,7 +803,7 @@ public class EventListener implements Listener {
 					return;
 				}
 				
-				ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
+				ArrayList<ElementButton> buttons = new ArrayList<>();
 				LinkedHashMap<String, LinkedHashMap<String, Integer>> target = this.loader.getRankByName(targetPlayerName)
 						.getPrefixList();
 				
@@ -766,7 +826,7 @@ public class EventListener implements Listener {
 				this.uiAdminDeletePrefix.put(player.getName(), targetPlayerName);
 				player.showFormWindow(form, 1101);
 			} else if (formId == ADD_PREFIX_FORM_ID) {
-				if (player.isOp() == false)
+				if (!player.isOp())
 					return;
 				String targetPlayerName = window.getResponse().getInputResponse(0);
 				String targetPrefix = window.getResponse().getInputResponse(1);
@@ -781,7 +841,7 @@ public class EventListener implements Listener {
 					showSimpleForm(player, "§8§l칭호 추가 (관리자)", "§f§l이미 존재하는 칭호입니다.");
 					return;
 				}
-				rankData.addPrefixs(new String[] { targetPrefix.trim() }, 1);
+				rankData.addPrefixes(new String[] { targetPrefix.trim() }, 1);
 				showSimpleForm(player, "§8§l칭호 추가 (관리자)",
 						"§6§l성공§f적으로 §6 " + targetPlayerName + "§f님에게 " + targetPrefix + "§r§f를 추가하였습니다");
 
@@ -789,7 +849,7 @@ public class EventListener implements Listener {
 
 				return;
 			} else if (formId == CHANGE_PREFIX_FOR_ADMIN_FORM_ID) {
-				if (player.isOp() == false) {
+				if (!player.isOp()) {
 					return;
 				}
 				
@@ -805,10 +865,8 @@ public class EventListener implements Listener {
 				
 				RankData rankData = this.loader.getRankByName(targetPlayerName);
 				if (rankData.getPrefixList().size() > 0) {
-					ArrayList<ElementButton> buttons = new ArrayList<ElementButton>();
-					rankData.getPrefixList().forEach((prefix, bool) -> {
-						buttons.add(new ElementButton((String) prefix));
-					});
+					ArrayList<ElementButton> buttons = new ArrayList<>();
+					rankData.getPrefixList().forEach((prefix, bool) -> buttons.add(new ElementButton((String) prefix)));
 					buttons.add(new ElementButton("§c§l취소하기"));
 					
 					this.plugin.getLogger().info(player.getName() + ",0,칭호확인," + targetPlayerName);
@@ -831,14 +889,14 @@ public class EventListener implements Listener {
 				}
 				this.plugin.getLogger().info(player.getName() + "님이" + respond + "원으로 판매 요청");
 				
-				if (this.isNumeric(respond) == false) {
+				if (!isNumeric(respond)) {
 					showSimpleForm(player, "§8§l칭호 판매", "§f§l판매가는 무조건 §6숫자§f로 입력해야 합니다 !\n §c판매 불가능 !");
 					return;
 				}
 				int SellPrice = (int) Math.floor(Double.parseDouble(respond));
 				int cost = this.uiSaveCostForSelling.get(player.getName());
 				if (SellPrice > 0 && SellPrice > (cost / 2) && SellPrice < 5000000) {
-					if (this.provider.isSelling(player.getName()) == true) {
+					if (this.provider.isSelling(player.getName())) {
 						showSimpleForm(player, "§8§l칭호 판매",
 								"§f§l이미 칭호를 판매하고 계십니다.\n칭호는 한번에 최대 §61개§f까지 판매 가능하며, 추가로 판매하려면 §624시간§f을 기다리거나 기존 칭호의 판매를 중단해주세요.");
 						return;
@@ -847,14 +905,19 @@ public class EventListener implements Listener {
 					this.provider.addSeller(player.getName(), cost, SellPrice, this.uiPrefixSet.get(player.getName()));
 					showSimpleForm(player, "§8§l칭호 판매",
 							"§l§a성공§f적으로 §6판매등록§f을 완료하였습니다.\n§6등록된 칭호 §f : " + this.uiPrefixSet.get(player.getName()));
-					this.plugin.showBossbar("§l§d" + player.getName() + "§f님이 칭호 "
-							+ this.uiPrefixSet.get(player.getName()) + "§r§l§f를 §d" + SellPrice + "§f원에 판매중입니다.");
-					return;
-				} else {
-					showSimpleForm(player, "§8§l칭호 판매", "§l§6판매가§f가 §6" + ((cost / 2) > 0 ? (cost / 2) : 1)
-							+ "§f보다 작거나 §65000000§f보다 큽니다.\n§6판매 불가능 !");
+					this.plugin.showBossbar(new StringBuilder()
+							.append("§l§d")
+							.append(player.getName())
+							.append("§f님이 칭호 ")
+							.append(this.uiPrefixSet.get(player.getName()))
+							.append("§r§l§f를 §d")
+							.append(SellPrice)
+							.append("§f원에 판매중입니다.").toString());
 					return;
 				}
+				showSimpleForm(player, "§8§l칭호 판매", "§l§6판매가§f가 §6" + ((cost / 2) > 0 ? (cost / 2) : 1)
+						+ "§f보다 작거나 §65000000§f보다 큽니다.\n§6판매 불가능 !");
+				return;
 			}
 		} else if (ev.getWindow() instanceof FormWindowModal) {
 			FormWindowModal window = (FormWindowModal) ev.getWindow();
@@ -873,12 +936,12 @@ public class EventListener implements Listener {
 					showMainForm(player);
 				} else if (clickedButton == 0) {
 					RankData rankData = this.provider.getRankByName(player.getName());
-					if (rankData.isExistPrefix(selectedPrefix) == false) {
+					if (!rankData.isExistPrefix(selectedPrefix)) {
 						this.plugin.message(player, "§l§f오류가 발생하였습니다. 존재하지 않는 칭호입니다!");
 						this.plugin.getLogger().error(player.getName() + "님의 유효하지 않는 칭호 삭제 요청 : " + selectedPrefix);
 						return;
 					}
-					rankData.deletePrefixs(new String[] { selectedPrefix });
+					rankData.deletePrefixes(new String[] { selectedPrefix });
 					if (rankData.getPrefix().equals(selectedPrefix)) {
 						double random = Math.random();
 						int randomID = (int) (random * (rankData.getPrefixList().size() - 1));
@@ -905,12 +968,12 @@ public class EventListener implements Listener {
 				if (tartgetPrefix == null)
 					return;
 				RankData rankData = this.provider.getRankByName(tartget);
-				if (rankData.isExistPrefix(tartgetPrefix) == false) {
+				if (!rankData.isExistPrefix(tartgetPrefix)) {
 					this.plugin.message(player, "§l§f오류가 발생하였습니다. 존재하지 않는 칭호입니다!");
 					this.plugin.getLogger().error(player.getName() + "님의 유효하지 않는 칭호 삭제 요청 (관리자) : " + tartgetPrefix);
 					return;
 				}
-				rankData.deletePrefixs(new String[] { tartgetPrefix });
+				rankData.deletePrefixes(new String[] { tartgetPrefix });
 				if (rankData.getPrefix().equals(tartgetPrefix)) {
 					if (rankData.isExistPrefixToIndex(0)) {
 						rankData.setPrefix(rankData.getPrefixByIndex(0));
@@ -918,7 +981,12 @@ public class EventListener implements Listener {
 					}
 				}
 				FormWindowSimple aFormWindowSimple = new FormWindowSimple("§8§l칭호 삭제",
-						"§l§f성공적으로 §6" + tartget + " §f님의" + tartgetPrefix + "§r칭호가 §6삭제§f되었습니다.");
+						new StringBuilder()
+								.append("§l§f성공적으로 §6")
+								.append(tartget)
+								.append(" §f님의")
+								.append(tartgetPrefix)
+								.append("§r칭호가 §6삭제§f되었습니다.").toString());
 				this.uiDeletePrefix.remove(player.getName());
 				this.uiAdminDeletePrefix.remove(player.getName());
 				this.uiAdminDeleteSelPrefix.remove(player.getName());
@@ -929,30 +997,30 @@ public class EventListener implements Listener {
 		}
 	}
 
-	public void sendHelpMessages(Player player) {
-		this.plugin.message((Player) player, this.plugin.getMessage("rank-help1"));
-		this.plugin.message((Player) player, this.plugin.getMessage("rank-help2"));
-		this.plugin.message((Player) player, this.plugin.getMessage("rank-help3"));
-		this.plugin.message((Player) player, this.plugin.getMessage("rank-help6"));
+	public void sendHelpMessages(CommandSender player) {
+		this.plugin.message(player, "§6칭호 목록§f - 본인이 보유하고 있는 칭호목록을 표시합니다.");
+		this.plugin.message(player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
+		this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
+		this.plugin.message(player, "§6칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
 		if (player.hasPermission("rankmanager.rank.control")) {
-			this.plugin.message((Player) player, this.plugin.getMessage("rank-help4"));
-			this.plugin.message((Player) player, this.plugin.getMessage("rank-help5"));
-			this.plugin.message((Player) player, "§6칭호 닉네임 [닉네임] [이름] §f - 해당유저의 닉네임을 변경합니다.");
+			this.plugin.message(player, "§6칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
+			this.plugin.message(player, "§6칭호 삭제 <유저명> <칭호명> §f- 해당유저에게서 해당 칭호를 삭제합니다.");
+			this.plugin.message(player, "§6칭호 닉네임 [닉네임] [이름] §f - 해당유저의 닉네임을 변경합니다.");
 		}
 	}
 
 	public boolean onCommand(CommandSender player, Command command, String label, String[] args) {
-		if (player instanceof Player == false) {
+		if (!(player instanceof Player)) {
 			player.sendMessage("인게임에서 입력해주세요.");
 		}
 		if (!player.hasPermission("rankmanager.rank.manage"))
 			return true;
-		if (command.getName().toLowerCase() != this.plugin.getMessage("rank"))
+		if (!command.getName().toLowerCase().equals("칭호"))
 			return true;
 
 		if (args.length == 0) {
 			if (!(player instanceof Player)) {
-				sendHelpMessages((Player) player);
+				sendHelpMessages(player);
 				return true;
 			}
 			showMainForm((Player) player);
@@ -961,17 +1029,17 @@ public class EventListener implements Listener {
 
 		String string = args[0];
 		if ("?".equals(string)) {
-			sendHelpMessages((Player) player);
+			sendHelpMessages(player);
 			return true;
 		} else if ("닉네임".equals(string)) {
 			if (!player.hasPermission("rankmanager.rank.control"))
 				return true;
 			if (args.length < 3) {
-				this.plugin.message((Player) player, "§6칭호 닉네임 <닉네임> <이름> §f - 해당유저의 닉네임을 변경합니다.");
+				this.plugin.message(player, "§6칭호 닉네임 <닉네임> <이름> §f - 해당유저의 닉네임을 변경합니다.");
 				return true;
 			}
 			this.plugin.korea(args[1], args[2]);
-			this.plugin.message((Player) player, args[1] + " 님의 닉네임이 " + args[2] + "로 설정 되었습니다.");
+			this.plugin.message(player, args[1] + " 님의 닉네임이 " + args[2] + "로 설정 되었습니다.");
 		} else if (string.equals("목록")) {
 			int index;
 			if (args.length > 1) {
@@ -982,62 +1050,62 @@ public class EventListener implements Listener {
 			this.getPrefixList((Player) player, index);
 		} else if (string.equals("변경")) {
 			if (!(args.length > 1)) {
-				this.plugin.message((Player) player, this.plugin.getMessage("rank-help2"));
+				this.plugin.message( player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
 				return true;
 			}
-			if (isNumeric(args[1]) == false) {
-				this.plugin.message((Player) player, this.plugin.getMessage("rank-help2"));
+			if (!isNumeric(args[1])) {
+				this.plugin.message(player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
 				return true;
 			}
 			RankData rankData = this.loader.getRank((Player) player);
 			if (!rankData.isExistPrefixToIndex(Integer.parseInt(args[1]))) {
-				this.plugin.alert((Player) player, this.plugin.getMessage("not-exist-that-prefix"));
+				this.plugin.alert(player, "해당 칭호를 소유하고 있지 §c않습니다 §f!");
 				return true;
 			}
 			rankData.setPrefix(rankData.getPrefixByIndex(Integer.parseInt(args[1])));
 			this.provider.applyNameTag(player.getName());
-			this.plugin.message((Player) player, this.plugin.getMessage("prefix-changed"));
+			this.plugin.message(player, "칭호를 §6정상§f적으로 §6변경§f했습니다 !");
 		} else if (string.equals("추가")) {
 			if (!player.hasPermission("rankmanager.rank.control"))
 				return true;
 			if (!(args.length > 1)) {
-				this.plugin.message((Player) player, this.plugin.getMessage("rank-help4"));
+				this.plugin.message(player, "§6칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
 				return true;
 			}
 			if (!(args.length > 2)) {
 				RankData rankData = this.loader.getRank((Player) player);
 				if (rankData.isExistPrefix(args[1])) {
-					this.plugin.alert((Player) player, this.plugin.getMessage("already-exist-that-prefix"));
+					this.plugin.alert(player, "해당 칭호를 §6이미§f 소유하고 있습니다 !");
 					return true;
 				}
-				rankData.addPrefixs(new String[] { args[1] }, 1);
-				this.plugin.message((Player) player, this.plugin.getMessage("prefix-added"));
+				rankData.addPrefixes(new String[] { args[1] }, 1);
+				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §6추가§f했습니다 !");
 			} else {
 				RankData rankData = this.loader.getRankByName(args[1]);
 				if (rankData.isExistPrefix(args[2])) {
-					this.plugin.alert((Player) player, this.plugin.getMessage("already-exist-that-prefix"));
+					this.plugin.alert(player, "해당 칭호를 §6이미§f 소유하고 있습니다 !");
 					return true;
 				}
-				rankData.addPrefixs(new String[] { args[2] }, 1);
-				this.plugin.message((Player) player, this.plugin.getMessage("prefix-added"));
+				rankData.addPrefixes(new String[] { args[2] }, 1);
+				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §6추가§f했습니다 !");
 			}
 		} else if (string.equals("삭제")) {
 			if (!(args.length > 1)) {
-				this.plugin.message((Player) player, this.plugin.getMessage("rank-help3"));
+				this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 				return true;
 			}
 			if (!(args.length > 2)) {
-				if (isNumeric(args[1]) == false) {
-					this.plugin.message((Player) player, this.plugin.getMessage("rank-help3"));
+				if (!isNumeric(args[1])) {
+					this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 					return true;
 				}
 				RankData rankData = this.loader.getRank((Player) player);
 				if (!rankData.isExistPrefixToIndex(Integer.parseInt(args[1]))) {
-					this.plugin.alert((Player) player, this.plugin.getMessage("not-exist-that-prefix"));
+					this.plugin.alert(player, "해당 칭호를 소유하고 있지 §c않습니다 §f!");
 					return true;
 				}
 				String selectedPrefix = rankData.getPrefixByIndex(Integer.parseInt(args[1]));
-				rankData.deletePrefixs(new String[] { rankData.getPrefixByIndex(Integer.parseInt(args[1])) });
+				rankData.deletePrefixes(new String[] { rankData.getPrefixByIndex(Integer.parseInt(args[1])) });
 				if (rankData.getPrefix().equals(selectedPrefix)) {
 					double random = Math.random();
 					int randomID = (int) (random * (rankData.getPrefixList().size() - 1));
@@ -1046,21 +1114,21 @@ public class EventListener implements Listener {
 						this.provider.applyNameTag(player.getName());
 					}
 				}
-				this.plugin.message((Player) player, this.plugin.getMessage("prefix-deleted"));
+				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §c삭제§f했습니다 !");
 			} else {
 				if (!player.hasPermission("rankmanager.rank.control"))
 					return true;
-				if (isNumeric(args[2]) == false) {
-					this.plugin.message((Player) player, this.plugin.getMessage("rank-help3"));
+				if (!isNumeric(args[2])) {
+					this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 					return true;
 				}
 				RankData rankData = this.loader.getRankByName(args[1]);
 				if (!rankData.isExistPrefixToIndex(Integer.parseInt(args[2]))) {
-					this.plugin.alert((Player) player, this.plugin.getMessage("not-exist-that-prefix"));
+					this.plugin.alert(player, "해당 칭호를 소유하고 있지 §c않습니다 §f!");
 					return true;
 				}
 				String selectedPrefix = rankData.getPrefixByIndex(Integer.parseInt(args[2]));
-				rankData.deletePrefixs(new String[] { rankData.getPrefixByIndex(Integer.parseInt(args[2])) });
+				rankData.deletePrefixes(new String[] { rankData.getPrefixByIndex(Integer.parseInt(args[2])) });
 				if (rankData.getPrefix().equals(selectedPrefix)) {
 					double random = Math.random();
 					int randomID = (int) (random * (rankData.getPrefixList().size() - 1));
@@ -1069,22 +1137,25 @@ public class EventListener implements Listener {
 						this.provider.applyNameTag(args[1]);
 					}
 				}
-				this.plugin.message((Player) player, this.plugin.getMessage("prefix-deleted"));
+				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §c삭제§f했습니다 !");
 			}
 		} else if (string.equals("확인")) {
 			if (!(args.length > 1)) {
-				this.plugin.message((Player) player, this.plugin.getMessage("rank-help6"));
+				this.plugin.message(player, "§6칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
 				return true;
 			}
 			RankData rankData = this.loader.getRankByName(args[1]);
 			StringBuilder sb = new StringBuilder(TextFormat.DARK_AQUA.toString());
 			for(String prefix : rankData.getPrefixList().keySet()) {
-				sb.append("<" + prefix + ">");
+				sb
+						.append("<")
+						.append(prefix)
+						.append(">");
 			}
-			this.plugin.message((Player) player, this.plugin.getMessage("show-the-user-prefix-list"));
-			this.plugin.message((Player) player, sb.toString());
+			this.plugin.message(player, "해당유저§f가 보유하고 있는 칭호목록을 표시합니다.");
+			this.plugin.message(player, sb.toString());
 		} else {
-			sendHelpMessages((Player) player);
+			sendHelpMessages(player);
 			return true;
 		}
 		return true;
@@ -1103,20 +1174,35 @@ public class EventListener implements Listener {
 		}
 
 		if (index <= full_index) {
-			player.sendMessage(TextFormat.WHITE + this.plugin.getMessage("now-list-show") + " (" + index + "/"
-					+ full_index + ") " + this.plugin.getMessage("index_count") + " : " + index_count + "개");
-			player.sendMessage(TextFormat.WHITE + this.plugin.getMessage("you-can-change-prefix"));
-			String message = "";
+			player.sendMessage(new StringBuilder()
+					.append(TextFormat.WHITE)
+					.append("§l§7《 서버 》§f*보유중인 칭호목록을 표시합니다 !")
+					.append(" (")
+					.append(index)
+					.append("/")
+					.append(full_index)
+					.append(") 총 : ")
+					.append(index_count)
+					.append("개").toString());
+			player.sendMessage(TextFormat.WHITE + "( §6/칭호 변경 칭호번호§f 또는 §6/칭호 §f를 입력해서 변경 가능합니다 ! )");
+
+			StringBuilder message = new StringBuilder();
+
 			for (int for_i = once_print; for_i >= 1; for_i--) {
 				int now_index = index * once_print - for_i;
-				if (index_key.length <= now_index)
-					break;
+				if (index_key.length <= now_index)	break;
 				String now_key = (String) index_key[now_index];
-				message += TextFormat.WHITE + "[" + now_index + "] : " + TextFormat.RESET + now_key + "\n";
+				message
+						.append(TextFormat.WHITE + "[")
+						.append(now_index)
+						.append("] : ")
+						.append(TextFormat.RESET)
+						.append(now_key)
+						.append("\n");
 			}
-			player.sendMessage(message);
+			player.sendMessage(message.toString());
 		} else {
-			player.sendMessage(TextFormat.RED + this.plugin.getMessage("there-is-no-list"));
+			player.sendMessage(TextFormat.RED + "§c보유하고 있는 칭호가 없습니다 !");
 			return;
 		}
 	}

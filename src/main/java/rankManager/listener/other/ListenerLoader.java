@@ -6,9 +6,9 @@ import me.onebone.economyapi.EconomyAPI;
 
 public class ListenerLoader implements Listener{
 	private ListenerLoader instance = null;
-	private EconomyAPIListener economyAPI;
+	private final EconomyAPIListener economyAPI;
 	public ListenerLoader(Plugin plugin) {
-		if(instance == null) instance = this;
+		instance = this;
 		this.economyAPI = new EconomyAPIListener(plugin);
 	}
 	public EconomyAPI getEconomyAPI() {
