@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.nukkit.event.EventPriority;
+import cn.nukkit.event.server.DataPacketReceiveEvent;
+import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
 import org.apache.commons.lang3.StringUtils;
 
 import cn.nukkit.Player;
@@ -38,6 +40,7 @@ import rankManager.rank.RankLoader;
 import rankManager.rank.RankProvider;
 
 public class EventListener implements Listener {
+	public static final DecimalFormat df = new DecimalFormat("#,###");
 	public static final int SELLING_LIST_FORM_ID = 28400;
 	public static final int MAIN_FORM_ID = 28401;
 	public static final int SELECTING_PLAYER_FORM_ID = 28402;
@@ -80,8 +83,7 @@ public class EventListener implements Listener {
 		}
 	}
 
-	public final String numberToKorean(int num) {
-		DecimalFormat df = new DecimalFormat("#,###");
+	public final String numberFormatting(int num) {
 		return df.format(num);
 	}
 
@@ -94,7 +96,15 @@ public class EventListener implements Listener {
 			}
 			rankData.setPrefix(this.provider.getDefaultPrefix());
 		}
-		this.provider.applyNameTag(e.getPlayer().getName());
+		//this.provider.applyNameTag(e.getPlayer().getName());
+		e.getPlayer().setNameTag(e.getPlayer().getName() + "님\n접속중...");
+	}
+
+	@EventHandler
+	public void onDataPacket(DataPacketReceiveEvent ev){
+		if(ev.getPacket() instanceof SetLocalPlayerAsInitializedPacket){
+			this.provider.applyNameTag(ev.getPlayer().getName());
+		}
 	}
 
 	@EventHandler
@@ -146,7 +156,7 @@ public class EventListener implements Listener {
 			e.setLine(0, "§l§f[ §g터치§f로 칭호구매 ]");
 			e.setLine(1, StringUtils.replace("%prefix%", "%prefix%", formattedPrefix, 1));
 			e.setLine(2, StringUtils.replace("§l§g가격 : §g%price%§f원", "%price%",
-					numberToKorean(requestedPrice), 1));
+					numberFormatting(requestedPrice), 1));
 			e.setLine(3, "§g§l가치값 §f: " + e.getLine(3).trim());
 		}
 	}
@@ -172,6 +182,7 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+		if(event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
 		EconomyAPI economyAPI = this.listenerLoader.getEconomyAPI();
 		String levelName = event.getBlock().getLevel().getName();
 		double x = event.getBlock().getX();
@@ -215,7 +226,8 @@ public class EventListener implements Listener {
 		rankData.addPrefixes(temp, (Integer) rankShop.get("prePrice"));
 		rankData.setPrefix(temp[0]);
 		this.plugin.message(event.getPlayer(), "해당 칭호를 §6성공적으로§f 구매했습니다 !");
-		this.plugin.message(event.getPlayer(), "§6/칭호 §f를 사용해서 나오는 UI의 §6칭호 설정§f기능으로 사용할 수 있어요!");
+		this.plugin.message(event.getPlayer(), "§6/칭호 §f를 입력해보세요!");
+		event.getPlayer().sendTitle("§o칭호 휙득", "§b/칭호 §f명령어로 간편하게 설정해보세요!", 20, 30, 20);
 	}
 
 	public void showSimpleForm(Player player, String title, String content) {
@@ -247,7 +259,7 @@ public class EventListener implements Listener {
 			}
 			
 			buttons.add(new ElementButton("§8§l칭호 §f: §r" + data.get("prefix") + "\n§r§l§8판매가 : §6"
-					+ numberToKorean((int) data.get("price")) + "\n§8판매자 §f: " + key + "\n남은 시간 : " + leftTime));
+					+ numberFormatting((int) data.get("price")) + "\n§8판매자 §f: " + key + "\n남은 시간 : " + leftTime));
 		});
 		
 		FormWindowSimple form = new FormWindowSimple("§l§8칭호 거래소",
@@ -532,7 +544,7 @@ public class EventListener implements Listener {
 						.append("\n§r§l§g얻은 날짜§f : §e")
 						.append(perchasedDate)
 						.append("\n§g가치 §f: §e")
-						.append(numberToKorean(costs))
+						.append(numberFormatting(costs))
 						.append("원\n\n").toString(),
 						buttons);
 				this.uiPrefixSet.put(player.getName(), selectedPrefix);
@@ -570,7 +582,7 @@ public class EventListener implements Listener {
 							.append("§f§l정말 ")
 							.append(this.uiPrefixSet.get(playerName))
 							.append(" §r§l 를 판매하실건가요?\n해당 칭호의 가치는 §g")
-							.append(numberToKorean(cost))
+							.append(numberFormatting(cost))
 							.append("§f원 입니다.\n해당 칭호는 §g")
 							.append((cost / 2) > 0 ? (cost / 2) : 1)
 							.append(" ~ 500백만원§f의 가격으로 판매할 수 있습니다.").toString()));
@@ -627,7 +639,7 @@ public class EventListener implements Listener {
 								.append("\n§r§l§g얻은 날짜§f : §e")
 								.append(perchaseDate)
 								.append("\n§g가치 §f: §e")
-								.append(numberToKorean(costs))
+								.append(numberFormatting(costs))
 								.append("원\n\n").toString(),
 						buttons);
 				player.showFormWindow(prefixInfoWindow, 15922);
@@ -1002,6 +1014,7 @@ public class EventListener implements Listener {
 		this.plugin.message(player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
 		this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 		this.plugin.message(player, "§6칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
+		this.plugin.message(player, "§6칭호 거래소 §f- 칭호 거래소 UI를 띄웁니다.");
 		if (player.hasPermission("rankmanager.rank.control")) {
 			this.plugin.message(player, "§6칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
 			this.plugin.message(player, "§6칭호 삭제 <유저명> <칭호명> §f- 해당유저에게서 해당 칭호를 삭제합니다.");
@@ -1031,7 +1044,10 @@ public class EventListener implements Listener {
 		if ("?".equals(string)) {
 			sendHelpMessages(player);
 			return true;
-		} else if ("닉네임".equals(string)) {
+		}else if(string.equals("거래소")){
+			this.showSellingListForm((Player) player);
+			return true;
+		}else if ("닉네임".equals(string)) {
 			if (!player.hasPermission("rankmanager.rank.control"))
 				return true;
 			if (args.length < 3) {

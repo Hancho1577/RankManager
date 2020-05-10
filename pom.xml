@@ -35,11 +35,13 @@
 			<groupId>hancho.plugin.nukkit.mailbox</groupId>
 			<artifactId>mailbox</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>hancho.BossbarManager</groupId>
 			<artifactId>BossbarManager</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>

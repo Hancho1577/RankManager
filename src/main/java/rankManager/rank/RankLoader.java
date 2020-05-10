@@ -50,11 +50,13 @@ public class RankLoader {
 		if(! users.containsKey(userName)) loadRank(userName);
 		return (RankData) users.get(userName);
 	}
+
 	public RankData getRankByName(String name) {
 		String userName = name.toLowerCase();
 		if(! users.containsKey(userName)) loadRank(userName);
 		return (RankData) users.get(userName);
 	}
+
 	public void save(Boolean async) {
 		users.forEach((Key, value)-> ((RankData)value).save(async));
 	}

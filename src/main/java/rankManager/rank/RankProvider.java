@@ -1,9 +1,6 @@
 package rankManager.rank;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,6 +18,8 @@ public class RankProvider {
 	private final RankLoader loader;
 	private final Server server;
 	private final Map<String, Object> db;
+	private final HashMap<String, HashSet<String>> prefixCounter;
+
 	public RankProvider (RankManager plugin) {
 		instance = this;
 		this.plugin = plugin;
@@ -37,6 +36,8 @@ public class RankProvider {
 			set("prefixsells" ,new LinkedHashMap<String, LinkedHashMap<String, Object>>() );
 			}
 		})).getAll();
+		HashMap<String, Object> tmp = (HashMap<String, Object>) new Config(this.plugin.getDataFolder().getAbsolutePath() + "/prefixCount.yml", Config.YAML).getAll();
+		this.prefixCounter = new HashMap(tmp);
 	}
 	public void cleanSellers() {
 		LinkedHashMap<String, LinkedHashMap<String, Object>> Sellers = (LinkedHashMap<String, LinkedHashMap<String, Object>>) db.get("prefixsells");
@@ -58,7 +59,11 @@ public class RankProvider {
 	}
 	public void save(Boolean async) {
 		Config config = new Config(plugin.getDataFolder().getPath() + "/pluginDB.yml", Config.YAML);
+		Config counter = new Config(this.plugin.getDataFolder().getAbsolutePath() + "/prefixCount.yml", Config.YAML);
 		config.setAll((LinkedHashMap<String, Object>) this.db);
+		LinkedHashMap<String, Object> tmp = new LinkedHashMap(this.prefixCounter);
+		counter.setAll(tmp);
+		counter.save(async);
 		config.save(async);
 	}
 	public void setDefaultPrefix(String prefix) {
