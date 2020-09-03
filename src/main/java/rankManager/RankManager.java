@@ -24,13 +24,16 @@ import cn.nukkit.command.CommandMap;
 import cn.nukkit.command.PluginCommand;
 
 public class RankManager extends PluginBase implements Listener {
-	public static final String PREFIX = "§l§f《 서버 》§f";
+	public static final String PREFIX_NORMAL = "§o[ §7! §f] ";
+	public static final String PREFIX_ALERT = "§o[ §c! §f] ";
+	private static RankManager instance;
+
 	public BossbarManager bossbarManager;
 	public mailbox mailbox;
-	private static RankManager instance;
-	private  Config config;
+
+	private Config config;
 	private Map<String, Object> data;
-	private Config test;
+
 	private EventListener eventListener;
 	private RankLoader rankLoader;
 	private RankProvider rankProvider;
@@ -145,19 +148,19 @@ public class RankManager extends PluginBase implements Listener {
 	}
 	
 	public void message(Player player, String text) {
-		player.sendMessage(PREFIX + " " + text);
+		player.sendMessage(PREFIX_NORMAL + text);
 	}
 
 	public void message(CommandSender player, String text) {
-		player.sendMessage(PREFIX + " " + text);
+		player.sendMessage(PREFIX_NORMAL + text);
 	}
 	
 	public void alert(Player player, String text) {
-		player.sendMessage(PREFIX + " " + text);
+		player.sendMessage(PREFIX_ALERT + text);
 	}
 
 	public void alert(CommandSender player, String text) {
-		player.sendMessage(PREFIX + " " + text);
+		player.sendMessage(PREFIX_ALERT + text);
 	}
 	
 	public static RankManager getInstance() {

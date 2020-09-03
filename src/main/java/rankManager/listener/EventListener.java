@@ -133,13 +133,13 @@ public class EventListener implements Listener {
 		String line = e.getLine(0);
 		if ("칭호판매".equals(line)) {
 			if (e.getLine(1) == null || e.getLine(2) == null || !isNumeric(e.getLine(2))) {
-				this.plugin.message(e.getPlayer(), "도움말: §61줄§f->칭호판매, §62줄§f->판매원하는칭호명, §63줄§f->가격 , §64줄§f->가치값");
+				this.plugin.message(e.getPlayer(), "도움말: §d1줄§f->칭호판매, §d2줄§f->판매원하는칭호명, §d3줄§f->가격 , §d4줄§f->가치값");
 				return;
 			}
 			
 			if (e.getLine(3) == null || !isNumeric(e.getLine(3))) {
 				this.plugin.message(e.getPlayer(),
-						"4번째 줄엔 §6가치값§f를 적어주세요.\n가치값는 칭호를 판매할 때 사용하여 얻기 어려울수록 §6높은§f 값을 가져야합니다.\n최대 §6500만§f 까지 허용됩니다.\n§c칭호상점의 경우 가치값과 판매가를 같게 설정하세요");
+						"4번째 줄엔 §d가치값§f를 적어주세요.\n가치값는 칭호를 판매할 때 사용하여 얻기 어려울수록 §d높은§f 값을 가져야합니다.\n최대 §d500만§f 까지 허용됩니다.\n§c칭호상점의 경우 가치값과 판매가를 같게 설정하세요");
 				return;
 			}
 			
@@ -157,11 +157,11 @@ public class EventListener implements Listener {
 			this.provider.setRankShop(levelName, x, y, z, requestedPrefix, requestedPrice,
 					Integer.parseInt(e.getLine(3).trim()));
 			String formattedPrefix = this.provider.applyPrefixFormat(requestedPrefix);
-			e.setLine(0, "§l§f[ §g터치§f로 칭호구매 ]");
+			e.setLine(0, "§o§f[ §d터치§f로 칭호구매 ]");
 			e.setLine(1, StringUtils.replace("%prefix%", "%prefix%", formattedPrefix, 1));
-			e.setLine(2, StringUtils.replace("§l§g가격 : §g%price%§f원", "%price%",
+			e.setLine(2, StringUtils.replace("§d가격 §d: §d%price%§f원", "%price%",
 					numberFormatting(requestedPrice), 1));
-			e.setLine(3, "§g§l가치값 §f: " + e.getLine(3).trim());
+			e.setLine(3, "§f가치값 §d: " + e.getLine(3).trim());
 		}
 	}
 
@@ -180,7 +180,7 @@ public class EventListener implements Listener {
 				return;
 			}
 			this.provider.deleteRankShop(levelName, x, y, z);
-			this.plugin.message(event.getPlayer(), "칭호판매대가 §6삭제§f되었습니다 !");
+			this.plugin.message(event.getPlayer(), "칭호판매대가 §d삭제§f되었습니다 !");
 		}
 	}
 
@@ -213,15 +213,15 @@ public class EventListener implements Listener {
 		double myMoney = economyAPI.myMoney(event.getPlayer());
 		
 		if ((int) rankShop.get("price") > myMoney) {
-			this.plugin.message(event.getPlayer(),"돈이 §6부족§f합니다 !");
+			this.plugin.message(event.getPlayer(),"돈이 §d부족§f합니다 !");
 			return;
 		}
 
 		RankData rankData = this.loader.getRank(event.getPlayer());
 		String prefix = (String) rankShop.get("prefix");
 		if (rankData.isExistPrefix(prefix)) {
-			this.plugin.alert(event.getPlayer(), "§6이미§f구매한 칭호입니다 ! §c구매할 수 없습니다§f !");
-			this.plugin.alert(event.getPlayer(), "( §6/칭호 변경 칭호번호§f 또는 §6칭호 UI§f에서 변경 가능합니다 ! )");
+			this.plugin.alert(event.getPlayer(), "이미구매한 칭호입니다. §c구매할 수 없습니다§f !");
+			this.plugin.alert(event.getPlayer(), "( §d/칭호 변경 칭호번호§f 또는 §d칭호 UI§f에서 변경 가능합니다 ! )");
 			return;
 		}
 
@@ -229,8 +229,8 @@ public class EventListener implements Listener {
 		economyAPI.reduceMoney(event.getPlayer(), (Integer) rankShop.get("price"));
 		rankData.addPrefixes(temp, (Integer) rankShop.get("prePrice"));
 		rankData.setPrefix(temp[0]);
-		this.plugin.message(event.getPlayer(), "해당 칭호를 §6성공적으로§f 구매했습니다 !");
-		this.plugin.message(event.getPlayer(), "§6/칭호 §f를 입력해보세요!");
+		this.plugin.message(event.getPlayer(), "해당 칭호를 §d성공적으로§f 구매했습니다 !");
+		this.plugin.message(event.getPlayer(), "§d/칭호 §f를 입력해보세요!");
 
 		event.getPlayer().getLevel().addParticle(new HugeExplodeParticle(event.getPlayer().getLocation()));
 		ShowPrefixTitleTask task = new ShowPrefixTitleTask(event.getPlayer(), prefix);
@@ -249,7 +249,7 @@ public class EventListener implements Listener {
 		
 		if (list.size() < 1) {
 			this.showSimpleForm(player, "§l§8칭호 거래소",
-					"§f§l현재 §6판매중인§f 칭호가 없습니다!\n§r§f칭호를 판매하려면 §6칭호 목록§f에서 원하는 칭호를 선택하고 §6판매하기 §f버튼을 터치하세요!");
+					"§f§l현재 §d판매중인§f 칭호가 없습니다!\n§r§f칭호를 판매하려면 §d칭호 목록§f에서 원하는 칭호를 선택하고 §d판매하기 §f버튼을 터치하세요!");
 			return;
 		}
 		
@@ -260,18 +260,18 @@ public class EventListener implements Listener {
 			int date = (int) data.get("date") - (int) (System.currentTimeMillis() / 1000);
 			
 			if ((date / 3600) > 0) {
-				leftTime = "§6" + (int) Math.floor(date / 3600) + "§f시간 §6" + (int) Math.floor((date % 3600) / 60)
+				leftTime = "§d" + (int) Math.floor(date / 3600) + "§f시간 §d" + (int) Math.floor((date % 3600) / 60)
 						+ "§f분";
 			} else if ((date / 60) > 0) {
 				leftTime = "§c" + (int) Math.floor((date % 3600) / 60) + "§f분";
 			}
 			
-			buttons.add(new ElementButton("§8§l칭호 §f: §r" + data.get("prefix") + "\n§r§l§8판매가 : §6"
+			buttons.add(new ElementButton("§8§l칭호 §f: §r" + data.get("prefix") + "\n§r§l§8판매가 : §d"
 					+ numberFormatting((int) data.get("price")) + "\n§8판매자 §f: " + key + "\n남은 시간 : " + leftTime));
 		});
 		
 		FormWindowSimple form = new FormWindowSimple("§l§8칭호 거래소",
-				"§f§l총 §6" + list.size() + "§f개의 칭호가 등록되어 있습니다.", buttons);
+				"§f§l총 §d" + list.size() + "§f개의 칭호가 등록되어 있습니다.", buttons);
 		player.showFormWindow(form, SELLING_LIST_FORM_ID);
 	}
 
@@ -287,7 +287,7 @@ public class EventListener implements Listener {
 			buttons.add(new ElementButton("§l§8칭호 변경(관리자)"));
 			buttons.add(new ElementButton("§l§8닉네임 변경(관리자)"));
 		}
-		FormWindowSimple form = new FormWindowSimple("§8칭호", "§f§6TIP §f: /칭호 ? 명령어로 칭호 명령어를 사용할 수 있습니다.", buttons);
+		FormWindowSimple form = new FormWindowSimple("§8칭호", "§f§dTIP §f: /칭호 ? 명령어로 칭호 명령어를 사용할 수 있습니다.", buttons);
 		player.showFormWindow(form, MAIN_FORM_ID);
 	}
 
@@ -408,9 +408,9 @@ public class EventListener implements Listener {
 				int date = (int) data.get("date") - (int) (System.currentTimeMillis() / 1000);
 				if ((date / 3600) >= 1) {
 					lefttime = new StringBuilder()
-							.append("§6")
+							.append("§d")
 							.append((int) Math.floor(date / 3600))
-							.append("§f시간 §6")
+							.append("§f시간 §d")
 							.append((int) Math.floor((date % 3600) / 60))
 							.append("§f분").toString();
 				} else {
@@ -418,13 +418,13 @@ public class EventListener implements Listener {
 				}
 				
 				String content = new StringBuilder()
-						.append("§6§l칭호 §f: §r")
+						.append("§d§l칭호 §f: §r")
 						.append(data.get("prefix"))
-						.append("\n§6§l판매가 §f: §g")
+						.append("\n§d§l판매가 §f: §d")
 						.append(data.get("price"))
-						.append("\n§6가치값 §f: §g")
+						.append("\n§d가치값 §f: §d")
 						.append(data.get("cost"))
-						.append("\n§6남은 시간 §f: §g")
+						.append("\n§d남은 시간 §f: §d")
 						.append(lefttime).toString();
 				
 				FormWindowSimple form = new FormWindowSimple("§l§8칭호 거래소", content, buttons);
@@ -468,7 +468,7 @@ public class EventListener implements Listener {
 				RankData rankData = this.loader.getRankByName(sellerName);
 				String prefix = (String) data.get("prefix");
 				if (!rankData.isExistPrefix(prefix)) {
-					showSimpleForm(player, "§l§8칭호 거래소", "§f판매자가 판매를 §6중단§f했습니다.");
+					showSimpleForm(player, "§l§8칭호 거래소", "§f판매자가 판매를 §d중단§f했습니다.");
 					return;
 				}
 				if (rankData.getPrefixList().size() < 2) {
@@ -491,15 +491,15 @@ public class EventListener implements Listener {
 				economyAPI.reduceMoney(player, (int) data.get("price"));
 				economyAPI.addMoney(sellerName, (int) data.get("price"));
 				Player sellerPlayer = this.plugin.getServer().getPlayerExact(sellerName);
-				this.plugin.getServer().broadcastMessage(new StringBuilder("§l§6")
+				this.plugin.getServer().broadcastMessage(new StringBuilder("§l§d")
 						.append(player.getName())
-						.append("§f님이 §6")
+						.append("§f님이 §d")
 						.append(sellerName)
 						.append("§f님의 칭호 §r")
 						.append(data.get("prefix"))
 						.append("§r§l§f를 구매하셨습니다!").toString());
 				if (sellerPlayer != null) {
-					sellerPlayer.sendTitle("§f§l칭호 판매 §6성공§f!", "§f앗싸! §e" + data.get("price") + "§f원 얻었다!", 20, 40,
+					sellerPlayer.sendTitle("§f§l칭호 판매 §d성공§f!", "§f앗싸! §e" + data.get("price") + "§f원 얻었다!", 20, 40,
 							20);
 				} else {
 					plugin.addMail(sellerName, new StringBuilder()
@@ -547,11 +547,11 @@ public class EventListener implements Listener {
 				buttons.add(new ElementButton("§8§l판매하기"));
 				buttons.add(new ElementButton("§8§l돌아가기"));
 				FormWindowSimple prefixInfoWindow = new FormWindowSimple("§8§l칭호 정보", new StringBuilder()
-						.append("§g§l칭호§f : §r")
+						.append("§d§l칭호§f : §r")
 						.append(selectedPrefix)
-						.append("\n§r§l§g얻은 날짜§f : §e")
+						.append("\n§r§l§d얻은 날짜§f : §e")
 						.append(perchasedDate)
-						.append("\n§g가치 §f: §e")
+						.append("\n§d가치 §f: §e")
 						.append(numberFormatting(costs))
 						.append("원\n\n").toString(),
 						buttons);
@@ -568,7 +568,7 @@ public class EventListener implements Listener {
 				if (buttonText.equals("§8§l칭호로 설정하기")) {
 					String selectedPrefix = this.uiPrefixSet.get(playerName);
 					if (selectedPrefix == null) {
-						this.plugin.message(player, "오류가 발생하였습니다 : §g17");
+						this.plugin.message(player, "오류가 발생하였습니다 : §d17");
 						this.plugin.getLogger().error(playerName + "님의 칭호 설정 요청이 오류로 인해 거부되었습니다.");
 						return;
 					}
@@ -576,7 +576,7 @@ public class EventListener implements Listener {
 					rankData.setPrefix(selectedPrefix);
 					this.provider.applyNameTag(playerName);
 					player.showFormWindow(new FormWindowSimple("§8§l칭호 설정",
-							"§l§g성공적으로 §f칭호가 §r" + selectedPrefix + "§r§f§l으로 설정되었습니다!"));
+							"§l§d성공적으로 §f칭호가 §r" + selectedPrefix + "§r§f§l으로 설정되었습니다!"));
 					this.plugin.getLogger().info(playerName + "님의 칭호가 " + selectedPrefix + "으로 설정되었습니다.");
 					this.uiPrefixSet.remove(playerName);
 				} else if (buttonText.equals("§8§l판매하기")) {
@@ -589,9 +589,9 @@ public class EventListener implements Listener {
 					elements.add(new ElementLabel(new StringBuilder()
 							.append("§f§l정말 ")
 							.append(this.uiPrefixSet.get(playerName))
-							.append(" §r§l 를 판매하실건가요?\n해당 칭호의 가치는 §g")
+							.append(" §r§l 를 판매하실건가요?\n해당 칭호의 가치는 §d")
 							.append(numberFormatting(cost))
-							.append("§f원 입니다.\n해당 칭호는 §g")
+							.append("§f원 입니다.\n해당 칭호는 §d")
 							.append((cost / 2) > 0 ? (cost / 2) : 1)
 							.append(" ~ 500백만원§f의 가격으로 판매할 수 있습니다.").toString()));
 					elements.add(new ElementInput("", "판매가"));
@@ -612,7 +612,7 @@ public class EventListener implements Listener {
 			} else if (formId == 1530) { // 다른 사람 칭호 목록
 				String targetPlayer = this.uiSeeOtherPlayersPrefix.get(player.getName());
 				if (targetPlayer == null) {
-					this.plugin.message(player, "오류가 발생하였습니다 : §g16");
+					this.plugin.message(player, "오류가 발생하였습니다 : §d16");
 					this.plugin.getLogger().error(player.getName() + "님의 칭호 확인이 오류로 인해 거부되었습니다.");
 					return;
 				}
@@ -642,11 +642,11 @@ public class EventListener implements Listener {
 						.append(targetPlayer)
 						.append("§r§o§8의 칭호 정보").toString(),
 						new StringBuilder()
-								.append("§g§l칭호§f : §r")
+								.append("§d§l칭호§f : §r")
 								.append(buttonText)
-								.append("\n§r§l§g얻은 날짜§f : §e")
+								.append("\n§r§l§d얻은 날짜§f : §e")
 								.append(perchaseDate)
-								.append("\n§g가치 §f: §e")
+								.append("\n§d가치 §f: §e")
 								.append(numberFormatting(costs))
 								.append("원\n\n").toString(),
 						buttons);
@@ -687,7 +687,7 @@ public class EventListener implements Listener {
 				}
 				FormWindowModal aModal = new FormWindowModal("§8§l칭호 삭제",
 						new StringBuilder()
-								.append("§l§f정말 §6")
+								.append("§l§f정말 §d")
 								.append(tartgetNick)
 								.append("§f님의 ")
 								.append(clickedButtonString)
@@ -713,7 +713,7 @@ public class EventListener implements Listener {
 				rankData.setPrefix(targetPrefix);
 				this.provider.applyNameTag(targetName);
 				showSimpleForm(player, "§8§l칭호 추가 (관리자)",
-						"§f§l성공적으로 §6" + targetName + "§f의 칭호를" + targetPrefix + "§r§f§l으로 설정했어요.");
+						"§f§l성공적으로 §d" + targetName + "§f의 칭호를" + targetPrefix + "§r§f§l으로 설정했어요.");
 				return;
 			}
 
@@ -798,7 +798,7 @@ public class EventListener implements Listener {
 
 				this.plugin.korea(targetnick, nick);
 				FormWindowSimple simpleForm = new FormWindowSimple("§8§l닉네임 변경", new StringBuilder()
-						.append("§f§6")
+						.append("§f§d")
 						.append(targetnick)
 						.append("§f님의 닉네임이 ")
 						.append(nick)
@@ -863,7 +863,7 @@ public class EventListener implements Listener {
 				}
 				rankData.addPrefixes(new String[] { targetPrefix.trim() }, 1);
 				showSimpleForm(player, "§8§l칭호 추가 (관리자)",
-						"§6§l성공§f적으로 §6 " + targetPlayerName + "§f님에게 " + targetPrefix + "§r§f를 추가하였습니다");
+						"§d§l성공§f적으로 §d " + targetPlayerName + "§f님에게 " + targetPrefix + "§r§f를 추가하였습니다");
 
 				this.plugin.getLogger().info(player.getName() + "에 의해 " + targetPlayerName + "님에게" + targetPrefix + "가 추가됨");
 
@@ -910,7 +910,7 @@ public class EventListener implements Listener {
 				this.plugin.getLogger().info(player.getName() + "님이" + respond + "원으로 판매 요청");
 				
 				if (!isNumeric(respond)) {
-					showSimpleForm(player, "§8§l칭호 판매", "§f§l판매가는 무조건 §6숫자§f로 입력해야 합니다 !\n §c판매 불가능 !");
+					showSimpleForm(player, "§8§l칭호 판매", "§f§l판매가는 무조건 §d숫자§f로 입력해야 합니다 !\n §c판매 불가능 !");
 					return;
 				}
 				int SellPrice = (int) Math.floor(Double.parseDouble(respond));
@@ -918,13 +918,13 @@ public class EventListener implements Listener {
 				if (SellPrice > 0 && SellPrice > (cost / 2) && SellPrice < 5000000) {
 					if (this.provider.isSelling(player.getName())) {
 						showSimpleForm(player, "§8§l칭호 판매",
-								"§f§l이미 칭호를 판매하고 계십니다.\n칭호는 한번에 최대 §61개§f까지 판매 가능하며, 추가로 판매하려면 §624시간§f을 기다리거나 기존 칭호의 판매를 중단해주세요.");
+								"§f§l이미 칭호를 판매하고 계십니다.\n칭호는 한번에 최대 §d1개§f까지 판매 가능하며, 추가로 판매하려면 §d24시간§f을 기다리거나 기존 칭호의 판매를 중단해주세요.");
 						return;
 					}
 					
 					this.provider.addSeller(player.getName(), cost, SellPrice, this.uiPrefixSet.get(player.getName()));
 					showSimpleForm(player, "§8§l칭호 판매",
-							"§l§a성공§f적으로 §6판매등록§f을 완료하였습니다.\n§6등록된 칭호 §f : " + this.uiPrefixSet.get(player.getName()));
+							"§l§a성공§f적으로 §d판매등록§f을 완료하였습니다.\n§d등록된 칭호 §f : " + this.uiPrefixSet.get(player.getName()));
 					this.plugin.showBossbar(new StringBuilder()
 							.append("§l§d")
 							.append(player.getName())
@@ -935,8 +935,8 @@ public class EventListener implements Listener {
 							.append("§f원에 판매중입니다.").toString());
 					return;
 				}
-				showSimpleForm(player, "§8§l칭호 판매", "§l§6판매가§f가 §6" + ((cost / 2) > 0 ? (cost / 2) : 1)
-						+ "§f보다 작거나 §65000000§f보다 큽니다.\n§6판매 불가능 !");
+				showSimpleForm(player, "§8§l칭호 판매", "§l§d판매가§f가 §d" + ((cost / 2) > 0 ? (cost / 2) : 1)
+						+ "§f보다 작거나 §d5000000§f보다 큽니다.\n§d판매 불가능 !");
 				return;
 			}
 		} else if (ev.getWindow() instanceof FormWindowModal) {
@@ -971,7 +971,7 @@ public class EventListener implements Listener {
 						}
 					}
 					FormWindowSimple form = new FormWindowSimple("§8§l칭호 삭제",
-							"§l§f성공적으로 " + selectedPrefix + "§r칭호가 §6삭제§f되었습니다.");
+							"§l§f성공적으로 " + selectedPrefix + "§r칭호가 §d삭제§f되었습니다.");
 					this.uiDeletePrefix.remove(player.getName());
 					player.showFormWindow(form);
 					this.plugin.getLogger().info(player.getName() + "의 " + selectedPrefix + "§f삭제요청 성공");
@@ -1002,11 +1002,11 @@ public class EventListener implements Listener {
 				}
 				FormWindowSimple aFormWindowSimple = new FormWindowSimple("§8§l칭호 삭제",
 						new StringBuilder()
-								.append("§l§f성공적으로 §6")
+								.append("§l§f성공적으로 §d")
 								.append(tartget)
 								.append(" §f님의")
 								.append(tartgetPrefix)
-								.append("§r칭호가 §6삭제§f되었습니다.").toString());
+								.append("§r칭호가 §d삭제§f되었습니다.").toString());
 				this.uiDeletePrefix.remove(player.getName());
 				this.uiAdminDeletePrefix.remove(player.getName());
 				this.uiAdminDeleteSelPrefix.remove(player.getName());
@@ -1018,15 +1018,15 @@ public class EventListener implements Listener {
 	}
 
 	public void sendHelpMessages(CommandSender player) {
-		this.plugin.message(player, "§6칭호 목록§f - 본인이 보유하고 있는 칭호목록을 표시합니다.");
-		this.plugin.message(player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
-		this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
-		this.plugin.message(player, "§6칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
-		this.plugin.message(player, "§6칭호 거래소 §f- 칭호 거래소 UI를 띄웁니다.");
+		this.plugin.message(player, "§d칭호 목록§f - 본인이 보유하고 있는 칭호목록을 표시합니다.");
+		this.plugin.message(player, "§d칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
+		this.plugin.message(player, "§d칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
+		this.plugin.message(player, "§d칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
+		this.plugin.message(player, "§d칭호 거래소 §f- 칭호 거래소 UI를 띄웁니다.");
 		if (player.hasPermission("rankmanager.rank.control")) {
-			this.plugin.message(player, "§6칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
-			this.plugin.message(player, "§6칭호 삭제 <유저명> <칭호명> §f- 해당유저에게서 해당 칭호를 삭제합니다.");
-			this.plugin.message(player, "§6칭호 닉네임 [닉네임] [이름] §f - 해당유저의 닉네임을 변경합니다.");
+			this.plugin.message(player, "§d칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
+			this.plugin.message(player, "§d칭호 삭제 <유저명> <칭호명> §f- 해당유저에게서 해당 칭호를 삭제합니다.");
+			this.plugin.message(player, "§d칭호 닉네임 [닉네임] [이름] §f - 해당유저의 닉네임을 변경합니다.");
 		}
 	}
 
@@ -1059,7 +1059,7 @@ public class EventListener implements Listener {
 			if (!player.hasPermission("rankmanager.rank.control"))
 				return true;
 			if (args.length < 3) {
-				this.plugin.message(player, "§6칭호 닉네임 <닉네임> <이름> §f - 해당유저의 닉네임을 변경합니다.");
+				this.plugin.message(player, "§d칭호 닉네임 <닉네임> <이름> §f - 해당유저의 닉네임을 변경합니다.");
 				return true;
 			}
 			this.plugin.korea(args[1], args[2]);
@@ -1074,11 +1074,11 @@ public class EventListener implements Listener {
 			this.getPrefixList((Player) player, index);
 		} else if (string.equals("변경")) {
 			if (!(args.length > 1)) {
-				this.plugin.message( player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
+				this.plugin.message( player, "§d칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
 				return true;
 			}
 			if (!isNumeric(args[1])) {
-				this.plugin.message(player, "§6칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
+				this.plugin.message(player, "§d칭호 변경 <칭호번호>§f - 해당칭호로 칭호를 변경합니다.");
 				return true;
 			}
 			RankData rankData = this.loader.getRank((Player) player);
@@ -1088,39 +1088,39 @@ public class EventListener implements Listener {
 			}
 			rankData.setPrefix(rankData.getPrefixByIndex(Integer.parseInt(args[1])));
 			this.provider.applyNameTag(player.getName());
-			this.plugin.message(player, "칭호를 §6정상§f적으로 §6변경§f했습니다 !");
+			this.plugin.message(player, "칭호를 §d정상§f적으로 §d변경§f했습니다 !");
 		} else if (string.equals("추가")) {
 			if (!player.hasPermission("rankmanager.rank.control"))
 				return true;
 			if (!(args.length > 1)) {
-				this.plugin.message(player, "§6칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
+				this.plugin.message(player, "§d칭호 추가 <유저명> <칭호명> §f- 해당유저에게 해당칭호를 줍니다.");
 				return true;
 			}
 			if (!(args.length > 2)) {
 				RankData rankData = this.loader.getRank((Player) player);
 				if (rankData.isExistPrefix(args[1])) {
-					this.plugin.alert(player, "해당 칭호를 §6이미§f 소유하고 있습니다 !");
+					this.plugin.alert(player, "해당 칭호를 §d이미§f 소유하고 있습니다 !");
 					return true;
 				}
 				rankData.addPrefixes(new String[] { args[1] }, 1);
-				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §6추가§f했습니다 !");
+				this.plugin.message(player, "해당 칭호를 §d정상§f적으로 §d추가§f했습니다 !");
 			} else {
 				RankData rankData = this.loader.getRankByName(args[1]);
 				if (rankData.isExistPrefix(args[2])) {
-					this.plugin.alert(player, "해당 칭호를 §6이미§f 소유하고 있습니다 !");
+					this.plugin.alert(player, "해당 칭호를 §d이미§f 소유하고 있습니다 !");
 					return true;
 				}
 				rankData.addPrefixes(new String[] { args[2] }, 1);
-				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §6추가§f했습니다 !");
+				this.plugin.message(player, "해당 칭호를 §d정상§f적으로 §d추가§f했습니다 !");
 			}
 		} else if (string.equals("삭제")) {
 			if (!(args.length > 1)) {
-				this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
+				this.plugin.message(player, "§d칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 				return true;
 			}
 			if (!(args.length > 2)) {
 				if (!isNumeric(args[1])) {
-					this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
+					this.plugin.message(player, "§d칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 					return true;
 				}
 				RankData rankData = this.loader.getRank((Player) player);
@@ -1138,12 +1138,12 @@ public class EventListener implements Listener {
 						this.provider.applyNameTag(player.getName());
 					}
 				}
-				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §c삭제§f했습니다 !");
+				this.plugin.message(player, "해당 칭호를 §d정상§f적으로 §c삭제§f했습니다 !");
 			} else {
 				if (!player.hasPermission("rankmanager.rank.control"))
 					return true;
 				if (!isNumeric(args[2])) {
-					this.plugin.message(player, "§6칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
+					this.plugin.message(player, "§d칭호 삭제 <칭호번호>§f - 해당 칭호를 삭제합니다.");
 					return true;
 				}
 				RankData rankData = this.loader.getRankByName(args[1]);
@@ -1161,11 +1161,11 @@ public class EventListener implements Listener {
 						this.provider.applyNameTag(args[1]);
 					}
 				}
-				this.plugin.message(player, "해당 칭호를 §6정상§f적으로 §c삭제§f했습니다 !");
+				this.plugin.message(player, "해당 칭호를 §d정상§f적으로 §c삭제§f했습니다 !");
 			}
 		} else if (string.equals("확인")) {
 			if (!(args.length > 1)) {
-				this.plugin.message(player, "§6칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
+				this.plugin.message(player, "§d칭호 확인 <유저명> §f- 해당유저의 칭호를 확인합니다.");
 				return true;
 			}
 			RankData rankData = this.loader.getRankByName(args[1]);
@@ -1208,7 +1208,7 @@ public class EventListener implements Listener {
 					.append(") 총 : ")
 					.append(index_count)
 					.append("개").toString());
-			player.sendMessage(TextFormat.WHITE + "( §6/칭호 변경 칭호번호§f 또는 §6/칭호 §f를 입력해서 변경 가능합니다 ! )");
+			player.sendMessage(TextFormat.WHITE + "( §d/칭호 변경 칭호번호§f 또는 §d/칭호 §f를 입력해서 변경 가능합니다 ! )");
 
 			StringBuilder message = new StringBuilder();
 

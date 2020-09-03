@@ -28,9 +28,9 @@ public class RankProvider {
 		
 		db = (new Config(this.plugin.getDataFolder().getPath() + "/pluginDB.yml", Config.YAML, new ConfigSection(){
 			{
-			set("defaultPrefix", "§g유저");
+			set("defaultPrefix", "§d유저");
 			set("defaultPrefixFormat" , "§f%prefix%");
-			set("chatFormat", "%special%§6[ %prefix%§f/ %name%§6]§f:§r %message%");
+			set("chatFormat", "%special%§d[ %prefix%§f/ %name%§d]§f:§r %message%");
 			set("nameTagFormat" , "%prefix%%name%");
 			set("rankShop" ,new LinkedHashMap<String, Object>() );
 			set("prefixsells" ,new LinkedHashMap<String, LinkedHashMap<String, Object>>() );
@@ -51,7 +51,7 @@ public class RankProvider {
 			value = Sellers.get(key);
 			if(now - (int) value.get("date") > 86400) {
 				if(this.plugin.getServer().getPlayer(key) != null) {
-					this.plugin.getServer().broadcastMessage("§l§g" + key + "님§f의 칭호 판매가 §c종료§f되었습니다.");
+					this.plugin.getServer().broadcastMessage("§l§d" + key + "님§f의 칭호 판매가 §c종료§f되었습니다.");
 					it.remove();
 				}
 			}
