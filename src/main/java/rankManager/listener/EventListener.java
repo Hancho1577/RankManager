@@ -8,7 +8,10 @@ import java.util.Map;
 
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
+import cn.nukkit.level.Sound;
+import cn.nukkit.level.particle.HugeExplodeParticle;
 import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
+import cn.nukkit.scheduler.TaskHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import cn.nukkit.Player;
@@ -38,6 +41,7 @@ import rankManager.listener.other.ListenerLoader;
 import rankManager.rank.RankData;
 import rankManager.rank.RankLoader;
 import rankManager.rank.RankProvider;
+import rankManager.task.ShowPrefixTitleTask;
 
 public class EventListener implements Listener {
 	public static final DecimalFormat df = new DecimalFormat("#,###");
@@ -97,7 +101,7 @@ public class EventListener implements Listener {
 			rankData.setPrefix(this.provider.getDefaultPrefix());
 		}
 		//this.provider.applyNameTag(e.getPlayer().getName());
-		e.getPlayer().setNameTag(e.getPlayer().getName() + "님\n접속중...");
+		e.getPlayer().setNameTag(e.getPlayer().getName() + "님\n§l§c§o접속중...");
 	}
 
 	@EventHandler
@@ -214,20 +218,24 @@ public class EventListener implements Listener {
 		}
 
 		RankData rankData = this.loader.getRank(event.getPlayer());
-		
-		if (rankData.isExistPrefix((String) rankShop.get("prefix"))) {
+		String prefix = (String) rankShop.get("prefix");
+		if (rankData.isExistPrefix(prefix)) {
 			this.plugin.alert(event.getPlayer(), "§6이미§f구매한 칭호입니다 ! §c구매할 수 없습니다§f !");
 			this.plugin.alert(event.getPlayer(), "( §6/칭호 변경 칭호번호§f 또는 §6칭호 UI§f에서 변경 가능합니다 ! )");
 			return;
 		}
 
-		String[] temp = { (String) rankShop.get("prefix") };
+		String[] temp = { prefix };
 		economyAPI.reduceMoney(event.getPlayer(), (Integer) rankShop.get("price"));
 		rankData.addPrefixes(temp, (Integer) rankShop.get("prePrice"));
 		rankData.setPrefix(temp[0]);
 		this.plugin.message(event.getPlayer(), "해당 칭호를 §6성공적으로§f 구매했습니다 !");
 		this.plugin.message(event.getPlayer(), "§6/칭호 §f를 입력해보세요!");
-		event.getPlayer().sendTitle("§o칭호 휙득", "§b/칭호 §f명령어로 간편하게 설정해보세요!", 20, 30, 20);
+
+		event.getPlayer().getLevel().addParticle(new HugeExplodeParticle(event.getPlayer().getLocation()));
+		ShowPrefixTitleTask task = new ShowPrefixTitleTask(event.getPlayer(), prefix);
+		TaskHandler handler = this.plugin.getServer().getScheduler().scheduleRepeatingTask(this.plugin, task, 10);
+		task.setTaskHandler(handler);
 	}
 
 	public void showSimpleForm(Player player, String title, String content) {

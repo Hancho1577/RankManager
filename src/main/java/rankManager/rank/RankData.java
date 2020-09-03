@@ -138,9 +138,8 @@ public class RankData {
 
 		if(data.get("nameTagList") instanceof ConfigSection) {
 			LinkedHashMap<String, String> map =  (LinkedHashMap<String, String>) data.get("nameTagList");
-			treeMap = new TreeMap<>();
-			map.forEach(treeMap::put);
-		}else {
+			treeMap = new TreeMap<>(map);
+		} else {
 			treeMap = (TreeMap<String, String>) data.get("nameTagList");
 		}
 		return treeMap;
