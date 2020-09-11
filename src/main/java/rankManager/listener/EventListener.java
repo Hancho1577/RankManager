@@ -547,12 +547,9 @@ public class EventListener implements Listener {
 				buttons.add(new ElementButton("§8§l판매하기"));
 				buttons.add(new ElementButton("§8§l돌아가기"));
 				FormWindowSimple prefixInfoWindow = new FormWindowSimple("§8§l칭호 정보", new StringBuilder()
-						.append("§d§l칭호§f : §r")
-						.append(selectedPrefix)
-						.append("\n§r§l§d얻은 날짜§f : §e")
-						.append(perchasedDate)
-						.append("\n§d가치 §f: §e")
-						.append(numberFormatting(costs))
+						.append(RankManager.PREFIX_NORMAL).append("칭호 : §r").append(selectedPrefix).append("\n")
+						.append(RankManager.PREFIX_NORMAL).append("얻은 날짜 :").append(perchasedDate).append("\n")
+						.append(RankManager.PREFIX_NORMAL).append("가치 : ").append(numberFormatting(costs))
 						.append("원\n\n").toString(),
 						buttons);
 				this.uiPrefixSet.put(player.getName(), selectedPrefix);
