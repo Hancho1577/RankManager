@@ -1,12 +1,10 @@
 package rankManager.rank;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
+import org.apache.commons.lang3.StringUtils;
 
 @SuppressWarnings("unchecked")
 public class RankData {
@@ -15,9 +13,6 @@ public class RankData {
 	private Map<String, Object> data;
 	private String nowSpecialPrefix = null;
 	private final Map<String, Object> specialPrefixList = new LinkedHashMap<>();
-	int index;
-	int is;
-	String iss;
 
 	public RankData(String userName, String dataFolder) {
 		userName = userName.toLowerCase();
@@ -147,25 +142,26 @@ public class RankData {
 
 	@SuppressWarnings("unchecked")
 	public int getIndexByPrefix(String prefix) {
-		index = 0;
-		is = 0;
-		((Map<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList")).forEach((key, value) -> {
-			if (key.equals(prefix))
-				is = index;
-			index++;
-		});
-		return is;
+		int index = 0;
+		HashMap<String, LinkedHashMap<String, Integer>> list = (HashMap<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList");
+		for (String key : list.keySet()) {
+			if(StringUtils.equalsIgnoreCase(prefix, key)){
+				return index;
+			}
+			index ++;
+		}
+		return index;
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getPrefixByIndex(int Key) {
-		index = 0;
-		iss = null;
-		((Map<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList")).forEach((key, value) -> {
-			if (index == Key)
-				iss = key;
-			index++;
-		});
-		return iss;
+	public String getPrefixByIndex(int index) {
+		int i = 0;
+		String prefix = null;
+		HashMap<String, LinkedHashMap<String, Integer>> list = (HashMap<String, LinkedHashMap<String, Integer>>) this.data.get("prefixList");
+		for (String key : list.keySet()) {
+			if(index == i) return key;
+			i ++;
+		}
+		return prefix;
 	}
 }

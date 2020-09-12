@@ -98,7 +98,9 @@ public class EventListener implements Listener {
 			if (!rankData.isExistPrefix(this.provider.getDefaultPrefix())) {
 				rankData.addPrefixes(new String[] { this.provider.getDefaultPrefix() }, 1);
 			}
-			rankData.setPrefix(this.provider.getDefaultPrefix());
+			if(rankData.getPrefix() == null) {
+				rankData.setPrefix(this.provider.getDefaultPrefix());
+			}
 		}
 		//this.provider.applyNameTag(e.getPlayer().getName());
 		e.getPlayer().setNameTag(e.getPlayer().getName() + "님\n§l§c§o접속중...");

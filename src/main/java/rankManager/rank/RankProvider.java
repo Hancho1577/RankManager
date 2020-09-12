@@ -160,7 +160,7 @@ public class RankProvider {
 		TreeMap<String, String> nameTagList = rank.getNameTagList();
 		String string = (String) db.get("nameTagFormat");
 		String prefix = rank.getPrefix();
-		prefix  = (prefix == null) ? "" : this.applyPrefixFormat(prefix) + " ";
+		prefix  = (prefix == null) ? "" : this.applyPrefixFormat(prefix) + "";
 		string = StringUtils.replace(string,"%prefix%", prefix);
 		string = StringUtils.replace(string,"%name%", TextFormat.WHITE + name);
 		sb.append(string);
