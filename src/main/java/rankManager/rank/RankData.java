@@ -26,7 +26,7 @@ public class RankData {
 		this.data = (new Config(this.dataFolder + this.userName + ".yml", Config.YAML,
 				new ConfigSection() {
 					{
-						set("nowPrefix", null);
+						set("nowPrefix", 0);
 						set("prefixList", new LinkedHashMap<String, Object>());
 					}
 				})).getAll();
